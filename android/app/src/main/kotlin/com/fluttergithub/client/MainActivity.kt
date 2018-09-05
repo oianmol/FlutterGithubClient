@@ -1,4 +1,4 @@
-package com.accuweathermm.FlutterGithubClient
+package com.fluttergithub.FlutterGithubClient
 
 import android.os.Bundle
 

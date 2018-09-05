@@ -203,19 +203,25 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
       print("Error body: $error");
     }).whenComplete(() {});*/
 
-    Github.authenticate();
+    showProgressBar();
+    Github.authenticate((success){
+      _scaffoldKey.currentState.hideCurrentSnackBar();
+      _scaffoldKey.currentState.showBottomSheet<Null>((BuildContext context) {
+        return new Container(
+            child: new Text("Authenticated to Github!"+success), margin: EdgeInsets.all(4.0));
+      });
+    });
   }
 
   void showProgressBar() {
     _scaffoldKey.currentState.showSnackBar(new SnackBar(
-      duration: Duration(seconds: 4),
       content: new Row(
         children: <Widget>[
           new Container(
               child: new CircularProgressIndicator(),
               margin: EdgeInsets.all(4.0)),
           new Container(
-              child: new Text("Loading..."), margin: EdgeInsets.all(4.0)),
+              child: new Text("Authenticating..."), margin: EdgeInsets.all(4.0)),
         ],
       ),
     ));

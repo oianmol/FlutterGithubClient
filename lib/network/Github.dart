@@ -78,7 +78,7 @@ class Github {
     return buffer.toString();
   }
 
-  static Future<String> authenticate() async {
+  static Future<String> authenticate(Null Function(String) param0) async {
     Stream<String> onToken = await _server();
 
     String url = Github.githubAuthUrl();
@@ -93,9 +93,11 @@ class Github {
 
     Github.postAccessToken(token).then((response) {
       print("Response status: ${response}");
+      param0(response);
     }).catchError((error) {
-      print("Error body: $error");
-    }).whenComplete(() {});
+      param0("Error body: $error");
+    }).whenComplete(() {
+    });
 
     return token;
   }
