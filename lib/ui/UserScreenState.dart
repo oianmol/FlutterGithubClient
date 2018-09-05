@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:LoginUI/network/Github.dart';
 import 'package:LoginUI/ui/UserScreen.dart';
 import 'package:flutter/material.dart';
@@ -5,9 +7,11 @@ import 'package:flutter/material.dart';
 class UserScreenState extends State<UserScreen> with TickerProviderStateMixin {
   double USER_IMAGE_SIZE = 200.0;
 
-  String getUserResponse;
+  dynamic getUserResponse;
+  List<dynamic> users;
   Icon actionIcon = new Icon(Icons.search);
   Widget appBarTitle = new Text("Search Github Users...");
+
   @override
   void initState() {
     super.initState();
@@ -23,24 +27,20 @@ class UserScreenState extends State<UserScreen> with TickerProviderStateMixin {
     // than having to individually change instances of widgets.
     return new Scaffold(
         body: new Column(
-      children: <Widget>[toolbarAndroid(), userImage(), userName()],
+      children: <Widget>[toolbarAndroid(), listVIew()],
     ));
   }
 
-  userImage() {
-    return new Image.network(
-        "https://images.pexels.com/photos/67636/rose-blue-flower-rose-blooms-67636.jpeg?auto=compress&cs=tinysrgb&h=350",
-        width: USER_IMAGE_SIZE,
-        height: USER_IMAGE_SIZE,
-        color: Colors.white);
-  }
-
-  userName() {
-    return new Container(
-      child: new Text(getUserResponse != null ? getUserResponse : ""),
-      color: Colors.white,
-      margin: EdgeInsets.all(20.0),
-    );
+  listVIew() {
+    return new Expanded(
+        child: new ListView.builder(
+            padding: new EdgeInsets.all(8.0),
+            itemCount: users == null ? 0 : users.length,
+            itemBuilder: (BuildContext context, int index) {
+              return new Column(children: <Widget>[new ListTile(
+                title: Text('title ${users[index]['login']}'),
+              ),new Image.network(users[index]['avatar_url'],width: 200.0,height: 200.0)]);
+            }));
   }
 
   toolbarAndroid() {
@@ -55,8 +55,8 @@ class UserScreenState extends State<UserScreen> with TickerProviderStateMixin {
                 if (this.actionIcon.icon == Icons.search) {
                   this.actionIcon = new Icon(Icons.close);
                   this.appBarTitle = new TextField(
-                    onChanged: (string){
-                      searchUser(widget,string);
+                    onChanged: (string) {
+                      searchUser(widget, string);
                     },
                     style: new TextStyle(
                       color: Colors.white,
@@ -77,11 +77,13 @@ class UserScreenState extends State<UserScreen> with TickerProviderStateMixin {
   }
 
   searchUser(UserScreen widget, String string) {
-    Github.getUsersBySearch(widget.data,
-        string).then((response) {
+    Github.getUsersBySearch(widget.data, string).then((response) {
       this.setState(() {
-        getUserResponse = response.body;
-        print(getUserResponse);
+        print("Response ");
+        getUserResponse = json.decode(response.body);
+        users = getUserResponse['items'] as List;
+        print(users);
+        //print(getUserResponse);
       });
     });
   }
