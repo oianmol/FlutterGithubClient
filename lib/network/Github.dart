@@ -16,7 +16,7 @@ class Github {
   static String clientSecret =
       "client_secret"; //Required. The client secret you received from GitHub for your GitHub App.
   static String redirectUri =
-      "redirect_uri	"; //The URL in your application where users will be sent after authorization. See details below about redirect urls.
+      "redirect_uri"; //The URL in your application where users will be sent after authorization. See details below about redirect urls.
   static String scope =
       "scope"; //A space-delimited list of scopes. If not provided, scope defaults to an empty list for users that have not authorized any scopes for the application. For users who have authorized scopes for the application, the user won't be shown the OAuth authorization page with the list of scopes. Instead, this step of the flow will automatically complete with the set of scopes the user has authorized for the application. For example, if a user has already performed the web flow twice and has authorized one token with user scope and another token with repo scope, a third web flow that does not provide a scope will receive a token with user and repo scope.
   static String state =
@@ -37,7 +37,7 @@ class Github {
       return AppConstants.GITHUB_CALLBACK_URL;
     });
     headers.putIfAbsent(Github.scope, () {
-      return "repo, user";
+      return "repo,user";
     });
     headers.putIfAbsent(Github.state, () {
       return AppConstants.GITHUB_CLIENT_ID;
@@ -46,12 +46,12 @@ class Github {
       return "true";
     });
     return headers;
-  }
+  }//https://github.com/login/oauth/authorize?client_id=5eebe59bc6ed95a4f4b1&redirect_uri	=http://localhost:8080/&scope=repo,user&state=5eebe59bc6ed95a4f4b1&allow_signup=true&
 
   static Future<Stream<String>> _server() async {
     final StreamController<String> onCode = new StreamController();
     HttpServer server =
-        await HttpServer.bind(InternetAddress.loopbackIPv4, 8080,shared: true);
+        await HttpServer.bind(InternetAddress.loopbackIPv4, 8080, shared: true);
     server.listen((HttpRequest request) async {
       final String code = request.uri.queryParameters["code"];
       request.response
@@ -82,7 +82,8 @@ class Github {
   static Future<String> authenticate(Null Function(String) param0) async {
     Stream<String> onToken = await _server();
 
-    String url = Github.githubAuthUrl();
+    String url = Github.githubAuthUrl().replaceAll(" ", "");
+    print(url);
     if (await canLaunch(url)) {
       await launch(url);
     } else {
@@ -98,8 +99,7 @@ class Github {
       param0(response);
     }).catchError((error) {
       param0("Error body: $error");
-    }).whenComplete(() {
-    });
+    }).whenComplete(() {});
 
     return token;
   }
@@ -128,8 +128,8 @@ class Github {
     return reply;
   }
 
-  static Future<http.Response> getUsersBySearch(String response,String value) {
-    String fullUrl = getUserGithub+"?"+response+"&q="+value;
+  static Future<http.Response> getUsersBySearch(String response, String value) {
+    String fullUrl = getUserGithub + "?" + response + "&q=" + value;
     print(fullUrl);
     return http.get(fullUrl);
   }
