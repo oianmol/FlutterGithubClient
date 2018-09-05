@@ -51,7 +51,7 @@ class Github {
   static Future<Stream<String>> _server() async {
     final StreamController<String> onCode = new StreamController();
     HttpServer server =
-        await HttpServer.bind(InternetAddress.loopbackIPv4, 8080);
+        await HttpServer.bind(InternetAddress.loopbackIPv4, 8080,shared: true);
     server.listen((HttpRequest request) async {
       final String code = request.uri.queryParameters["code"];
       request.response
@@ -86,6 +86,7 @@ class Github {
     if (await canLaunch(url)) {
       await launch(url);
     } else {
+      param0("");
       throw 'Could not launch $url';
     }
 
