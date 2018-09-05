@@ -9,6 +9,7 @@ import 'package:url_launcher/url_launcher.dart';
 class Github {
   static String authorizeURL = "https://github.com/login/oauth/authorize";
   static String accessTokenURL = "https://github.com/login/oauth/access_token";
+  static String getUserGithub = "https://api.github.com/search/users?";
 
   static String clientId =
       "client_id"; //Required. The client ID you received from GitHub when you registered.
@@ -124,5 +125,11 @@ class Github {
     String reply = await response.transform(utf8.decoder).join();
     httpClient.close();
     return reply;
+  }
+
+  static Future<http.Response> getUser(String response) {
+    String fullUrl = getUserGithub+response+"&q=anmol92verma";
+    print(fullUrl);
+    return http.get(fullUrl);
   }
 }

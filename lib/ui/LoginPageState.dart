@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:LoginUI/network/Github.dart';
 import 'package:LoginUI/ui/LoginPage.dart';
+import 'package:LoginUI/ui/UserScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:vector_math/vector_math_64.dart' as Vector;
 
@@ -210,6 +211,10 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         return new Container(
             child: new Text("Authenticated to Github!"+success), margin: EdgeInsets.all(4.0));
       });
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => UserScreen(data:success)),
+      );
     });
   }
 
