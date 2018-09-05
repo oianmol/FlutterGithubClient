@@ -11,9 +11,9 @@ class UserScreenState extends State<UserScreen> with TickerProviderStateMixin {
   void initState() {
     super.initState();
 
-    Github.getUser(widget.data).then((response){
-      this.setState((){
-        getUserResponse  = response.body;
+    Github.getUsersBySearch(widget.data).then((response) {
+      this.setState(() {
+        getUserResponse = response.body;
         print(getUserResponse);
       });
     });
@@ -34,13 +34,16 @@ class UserScreenState extends State<UserScreen> with TickerProviderStateMixin {
   }
 
   userImage() {
-    return new Image.network("https://images.pexels.com/photos/67636/rose-blue-flower-rose-blooms-67636.jpeg?auto=compress&cs=tinysrgb&h=350",
-        width: USER_IMAGE_SIZE, height: USER_IMAGE_SIZE, color: Colors.white);
+    return new Image.network(
+        "https://images.pexels.com/photos/67636/rose-blue-flower-rose-blooms-67636.jpeg?auto=compress&cs=tinysrgb&h=350",
+        width: USER_IMAGE_SIZE,
+        height: USER_IMAGE_SIZE,
+        color: Colors.white);
   }
 
   userName() {
     return new Container(
-      child: new Text("User Name"),
+      child: new Text(getUserResponse != null ? getUserResponse : ""),
       color: Colors.white,
       margin: EdgeInsets.all(20.0),
     );

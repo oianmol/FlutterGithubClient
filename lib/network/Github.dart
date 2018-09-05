@@ -127,7 +127,7 @@ class Github {
     return reply;
   }
 
-  static Future<http.Response> getUser(String response) {
+  static Future<http.Response> getUsersBySearch(String response) {
     String fullUrl = getUserGithub+"?"+response+"&q=anmol92verma";
     print(fullUrl);
     return http.get(fullUrl);
