@@ -6,17 +6,11 @@ class UserScreenState extends State<UserScreen> with TickerProviderStateMixin {
   double USER_IMAGE_SIZE = 200.0;
 
   String getUserResponse;
-
+  Icon actionIcon = new Icon(Icons.search);
+  Widget appBarTitle = new Text("Search Github Users...");
   @override
   void initState() {
     super.initState();
-
-    Github.getUsersBySearch(widget.data).then((response) {
-      this.setState(() {
-        getUserResponse = response.body;
-        print(getUserResponse);
-      });
-    });
   }
 
   @override
@@ -28,8 +22,8 @@ class UserScreenState extends State<UserScreen> with TickerProviderStateMixin {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return new Scaffold(
-        body: new Stack(
-      children: <Widget>[userImage(), userName()],
+        body: new Column(
+      children: <Widget>[toolbarAndroid(), userImage(), userName()],
     ));
   }
 
@@ -47,5 +41,48 @@ class UserScreenState extends State<UserScreen> with TickerProviderStateMixin {
       color: Colors.white,
       margin: EdgeInsets.all(20.0),
     );
+  }
+
+  toolbarAndroid() {
+    return new AppBar(
+      centerTitle: false,
+      title: appBarTitle,
+      actions: <Widget>[
+        new IconButton(
+            icon: actionIcon,
+            onPressed: () {
+              setState(() {
+                if (this.actionIcon.icon == Icons.search) {
+                  this.actionIcon = new Icon(Icons.close);
+                  this.appBarTitle = new TextField(
+                    onChanged: (string){
+                      searchUser(widget,string);
+                    },
+                    style: new TextStyle(
+                      color: Colors.white,
+                    ),
+                    decoration: new InputDecoration(
+                        prefixIcon: new Icon(Icons.search, color: Colors.white),
+                        hintText: "Search...",
+                        hintStyle: new TextStyle(color: Colors.white)),
+                  );
+                } else {
+                  this.actionIcon = new Icon(Icons.search);
+                  this.appBarTitle = new Text("Search Github Users...");
+                }
+              });
+            })
+      ],
+    );
+  }
+
+  searchUser(UserScreen widget, String string) {
+    Github.getUsersBySearch(widget.data,
+        string).then((response) {
+      this.setState(() {
+        getUserResponse = response.body;
+        print(getUserResponse);
+      });
+    });
   }
 }
