@@ -8,7 +8,7 @@ import 'package:vector_math/vector_math_64.dart' as Vector;
 
 class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  final GlobalKey<EditableTextState> _emailState =
+  final GlobalKey<EditableTextState> _usernameState =
       new GlobalKey<EditableTextState>();
   final GlobalKey<EditableTextState> _passwordState =
       new GlobalKey<EditableTextState>();
@@ -118,9 +118,8 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         child: new Container(
           margin: const EdgeInsets.only(top: 20.0),
           child: new Column(children: <Widget>[
-            email(context),
+            username(context),
             password(context),
-            forgotPassword(context),
             loginButton(context)
           ]),
         ));
@@ -133,13 +132,15 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             color: Colors.white.withOpacity(0.1),
             borderRadius: BorderRadius.all(Radius.circular(4.0)))),
         alignment: Alignment.center,
-        child: new MaterialButton(
-            onPressed: loginNow,
-            textColor: Colors.white,
-            child: new Text(
-              "Login",
-              style: TextStyle(fontSize: 20.0),
-            )));
+        child: new SizedBox(
+            width: double.infinity,
+            child: new MaterialButton(
+                onPressed: loginNow,
+                textColor: Colors.white,
+                child: new Text(
+                  "Login",
+                  style: TextStyle(fontSize: 20.0),
+                ))));
   }
 
   forgotPassword(BuildContext context) {
@@ -152,11 +153,11 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             textAlign: TextAlign.start));
   }
 
-  email(BuildContext context) {
+  username(BuildContext context) {
     return new Container(
         margin: EdgeInsets.all(8.0),
         child: new TextFormField(
-          key: _emailState,
+          key: _usernameState,
           maxLines: 1,
           textInputAction: TextInputAction.next,
           keyboardType: TextInputType.emailAddress,
@@ -166,7 +167,7 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             FocusScope.of(context).requestFocus(_focusNode);
           },
           decoration: InputDecoration(
-              hintText: 'Email',
+              hintText: 'Username',
               contentPadding: EdgeInsets.all(10.0),
               hintStyle: TextStyle(color: Colors.white.withOpacity(0.5))),
         ));
@@ -205,15 +206,16 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     }).whenComplete(() {});*/
 
     showProgressBar();
-    Github.authenticate((success){
+    Github.authenticate((success) {
       _scaffoldKey.currentState.hideCurrentSnackBar();
       _scaffoldKey.currentState.showBottomSheet<Null>((BuildContext context) {
         return new Container(
-            child: new Text("Authenticated to Github!"+success), margin: EdgeInsets.all(4.0));
+            child: new Text("Authenticated to Github!" + success),
+            margin: EdgeInsets.all(4.0));
       });
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => UserScreen(data:success)),
+        MaterialPageRoute(builder: (context) => UserScreen(data: success)),
       );
     });
   }
@@ -226,7 +228,8 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
               child: new CircularProgressIndicator(),
               margin: EdgeInsets.all(4.0)),
           new Container(
-              child: new Text("Authenticating..."), margin: EdgeInsets.all(4.0)),
+              child: new Text("Authenticating..."),
+              margin: EdgeInsets.all(4.0)),
         ],
       ),
     ));
