@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:LoginUI/network/Github.dart';
 import 'package:LoginUI/ui/LoginPage.dart';
 import 'package:LoginUI/ui/UserScreen.dart';
+import 'package:LoginUI/utils/SharedPrefs.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:vector_math/vector_math_64.dart' as Vector;
 
@@ -24,6 +26,12 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    SharedPrefs().getToken().then((value) {
+      if (value.isNotEmpty) {
+        debugPrint("fetched SharedPrefrences $value");
+        fetchedAccessToken(value);
+      }
+    });
     _focusNode = new FocusNode();
     startTime();
   }
@@ -56,6 +64,7 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     // than having to individually change instances of widgets.
     centerValue = MediaQuery.of(context).size.height / 2;
     centerValue = centerValue - (LOGO_SIZE / 2);
+
     return new Scaffold(
         key: _scaffoldKey,
         body: new Stack(
@@ -205,17 +214,23 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     }).whenComplete(() {});*/
 
     showProgressBar();
-    Github.authenticate((success){
+    Github.authenticate((success) {
+      SharedPrefs().saveToken(success);
       _scaffoldKey.currentState.hideCurrentSnackBar();
       _scaffoldKey.currentState.showBottomSheet<Null>((BuildContext context) {
         return new Container(
-            child: new Text("Authenticated to Github!"+success), margin: EdgeInsets.all(4.0));
+            child: new Text("Authenticated to Github!" + success),
+            margin: EdgeInsets.all(4.0));
       });
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => UserScreen(data:success)),
-      );
+      fetchedAccessToken(success);
     });
+  }
+
+  void fetchedAccessToken(String token) {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => UserScreen(data: token)),
+    );
   }
 
   void showProgressBar() {
@@ -226,7 +241,8 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
               child: new CircularProgressIndicator(),
               margin: EdgeInsets.all(4.0)),
           new Container(
-              child: new Text("Authenticating..."), margin: EdgeInsets.all(4.0)),
+              child: new Text("Authenticating..."),
+              margin: EdgeInsets.all(4.0)),
         ],
       ),
     ));
