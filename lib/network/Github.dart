@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:LoginUI/ui/AppConstants.dart';
+import 'package:LoginUI/utils/SharedPrefs.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 
@@ -133,4 +134,20 @@ class Github {
     print(fullUrl);
     return http.get(fullUrl);
   }
+
+  static void _defaultUnAuthFunc(){}
+
+  static bool  isValidResponse(http.Response response,{Function() onUnAuthorize:_defaultUnAuthFunc,bool clearAccessToken : false} ){
+    switch(response.statusCode){
+      case 200 : return true;
+      case 401 : onUnAuthorize();
+                if(clearAccessToken)SharedPrefs().saveToken("");
+           return false;//UnAuthorized
+      case 404: return false;
+    }
+
+    return true;
+  }
+
+
 }
