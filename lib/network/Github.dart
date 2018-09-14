@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:LoginUI/ui/AppConstants.dart';
+import 'package:LoginUI/utils/SharedPrefs.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 
@@ -173,4 +174,25 @@ class Github {
     return http.post(authorizeBasicUrl,
         headers: {'Authorization': authrorization}, body: json.encode(map));
   }
+
+  static void _defaultUnAuthFunc(){}
+
+  /**
+   * this method will check if response is valid or not on basis of Response code.
+   * Optional param [onUnAuthorize] onUnauthorize will be called when response is unAuthorized.
+   * returns boolean as final response.
+   */
+  static bool  isValidResponse(http.Response response,{Function() onUnAuthorize:_defaultUnAuthFunc,bool clearAccessToken : false} ){
+    switch(response.statusCode){
+      case 200 : return true;
+      case 401 : onUnAuthorize();
+                if(clearAccessToken)SharedPrefs().saveToken("");
+           return false;//UnAuthorized
+      case 404: return false;
+    }
+
+    return true;
+  }
+
+
 }
