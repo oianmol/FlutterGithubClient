@@ -224,7 +224,7 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             child: new Text("Authenticated to Github!" + success),
             margin: EdgeInsets.all(4.0));
       });
-      fetchedAccessToken(success);
+      fetchedAccessToken();
     });
   }
 
