@@ -4,7 +4,8 @@ import 'package:LoginUI/network/Github.dart';
 import 'package:LoginUI/ui/searchusers/UserSearchPage.dart';
 import 'package:flutter/material.dart';
 
-class UserSearchPageState extends State<UserSearchPage> with TickerProviderStateMixin {
+class UserSearchPageState extends State<UserSearchPage>
+    with TickerProviderStateMixin {
   double USER_IMAGE_SIZE = 200.0;
 
   dynamic getUserResponse;
@@ -31,16 +32,17 @@ class UserSearchPageState extends State<UserSearchPage> with TickerProviderState
     ));
   }
 
-
   listVIew() {
     return new Expanded(
         child: new ListView.builder(
             padding: new EdgeInsets.all(8.0),
             itemCount: users == null ? 0 : users.length,
             itemBuilder: (BuildContext context, int index) {
-              return new Row(children: <Widget>[new ListTile(
-                title: Text('User: ${users[index]['login']}'),
-              ),new Image.network(users[index]['avatar_url'],width: 100.0,height: 100.0)]);
+              return new Container(child: new Row(children: <Widget>[
+                  new Image.network(users[index]['avatar_url'],
+                  width: 50.0, height: 50.0),
+              new Container(margin:EdgeInsets.only(left: 8.0),child: new Text('${users[index]['login']}'))
+              ]),margin: EdgeInsets.all(8.0));
             }));
   }
 
