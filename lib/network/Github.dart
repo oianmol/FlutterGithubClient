@@ -26,7 +26,7 @@ class Github {
       "allow_signup"; //Whether or not unauthenticated users will be offered an option to sign up for GitHub during the OAuth flow. The default is true. Use false in the case that a policy prohibits signups.
 
   static String affiliationParamRepoSearch =
-      "&visibility=all&affiliation=owner,collaborator,organization_member&type=all";
+      "&visibility=all&affiliation=owner,collaborator,organization_member";
 
   static Future<http.Response> authorize(Map<String, String> requestData) {
     return http.get(authorizeURL, headers: requestData);

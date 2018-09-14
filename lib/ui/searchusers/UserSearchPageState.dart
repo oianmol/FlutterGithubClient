@@ -2,12 +2,13 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:LoginUI/network/Github.dart';
+import 'package:LoginUI/ui/base/BaseStatefulState.dart';
 import 'package:LoginUI/ui/searchusers/UserSearchPage.dart';
 import 'package:LoginUI/utils/SharedPrefs.dart';
 import 'package:flutter/material.dart';
 import 'package:http/src/response.dart';
 
-class UserSearchPageState extends State<UserSearchPage>
+class UserSearchPageState extends BaseStatefulState<UserSearchPage>
     with TickerProviderStateMixin {
   double USER_IMAGE_SIZE = 200.0;
 
@@ -23,13 +24,13 @@ class UserSearchPageState extends State<UserSearchPage>
   @override
   void initState() {
     super.initState();
-    SharedPrefs().getToken().then((token){
+    SharedPrefs().getToken().then((token) {
       accessToken = token;
     });
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget prepareWidget(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
     //
@@ -37,9 +38,10 @@ class UserSearchPageState extends State<UserSearchPage>
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return new Scaffold(
+        key: scaffoldKey,
         body: new Column(
-      children: <Widget>[toolbarAndroid(), listVIew()],
-    ));
+          children: <Widget>[toolbarAndroid(), listVIew()],
+        ));
   }
 
   listVIew() {
@@ -95,9 +97,11 @@ class UserSearchPageState extends State<UserSearchPage>
   }
 
   searchUser(String string) {
+    hideProgress();
     if (subscription != null) {
       subscription.cancel();
     }
+    showProgress();
     var stream = Github.getUsersBySearch(accessToken, string).asStream();
     subscription = stream.listen((response) {
       this.setState(() {
@@ -107,6 +111,7 @@ class UserSearchPageState extends State<UserSearchPage>
         print(users);
         //print(getUserResponse);
       });
+      hideProgress();
     });
   }
 }
