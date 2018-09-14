@@ -18,6 +18,11 @@ class SharedPrefs{
     pref.setString(_token, token);
   }
 
+  Future<bool> clear() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    return pref.clear();
+  }
+
   Future<String> getToken()async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     return  pref.getString(_token);

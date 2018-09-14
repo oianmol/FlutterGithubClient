@@ -1,4 +1,4 @@
-import 'package:LoginUI/ui/LoginPageState.dart';
+import 'package:LoginUI/ui/login/LoginPageState.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatefulWidget {
