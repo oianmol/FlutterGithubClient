@@ -1,10 +1,15 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:LoginUI/network/Github.dart';
-import 'package:LoginUI/ui/UserScreen.dart';
+import 'package:LoginUI/ui/base/BaseStatefulState.dart';
+import 'package:LoginUI/ui/searchusers/UserSearchPage.dart';
+import 'package:LoginUI/utils/SharedPrefs.dart';
 import 'package:flutter/material.dart';
+import 'package:http/src/response.dart';
 
-class UserScreenState extends State<UserScreen> with TickerProviderStateMixin {
+class UserSearchPageState extends BaseStatefulState<UserSearchPage>
+    with TickerProviderStateMixin {
   double USER_IMAGE_SIZE = 200.0;
 
   dynamic getUserResponse;
@@ -12,13 +17,20 @@ class UserScreenState extends State<UserScreen> with TickerProviderStateMixin {
   Icon actionIcon = new Icon(Icons.search);
   Widget appBarTitle = new Text("Search Github Users...");
 
+  StreamSubscription<Response> subscription;
+
+  String accessToken;
+
   @override
   void initState() {
     super.initState();
+    SharedPrefs().getToken().then((token) {
+      accessToken = token;
+    });
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget prepareWidget(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
     //
@@ -26,11 +38,11 @@ class UserScreenState extends State<UserScreen> with TickerProviderStateMixin {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return new Scaffold(
+        key: scaffoldKey,
         body: new Column(
-      children: <Widget>[toolbarAndroid(), listVIew()],
-    ));
+          children: <Widget>[toolbarAndroid(), listVIew()],
+        ));
   }
-
 
   listVIew() {
     return new Expanded(
@@ -38,9 +50,15 @@ class UserScreenState extends State<UserScreen> with TickerProviderStateMixin {
             padding: new EdgeInsets.all(8.0),
             itemCount: users == null ? 0 : users.length,
             itemBuilder: (BuildContext context, int index) {
-              return new Column(children: <Widget>[new ListTile(
-                title: Text('title ${users[index]['login']}'),
-              ),new Image.network(users[index]['avatar_url'],width: 200.0,height: 200.0)]);
+              return new Container(
+                  child: new Row(children: <Widget>[
+                    new Image.network(users[index]['avatar_url'],
+                        width: 50.0, height: 50.0),
+                    new Container(
+                        margin: EdgeInsets.only(left: 8.0),
+                        child: new Text('${users[index]['login']}'))
+                  ]),
+                  margin: EdgeInsets.all(8.0));
             }));
   }
 
@@ -57,7 +75,7 @@ class UserScreenState extends State<UserScreen> with TickerProviderStateMixin {
                   this.actionIcon = new Icon(Icons.close);
                   this.appBarTitle = new TextField(
                     onChanged: (string) {
-                      searchUser(widget, string);
+                      searchUser(string);
                     },
                     style: new TextStyle(
                       color: Colors.white,
@@ -69,6 +87,7 @@ class UserScreenState extends State<UserScreen> with TickerProviderStateMixin {
                   );
                 } else {
                   this.actionIcon = new Icon(Icons.search);
+                  this.users = null;
                   this.appBarTitle = new Text("Search Github Users...");
                 }
               });
@@ -77,8 +96,14 @@ class UserScreenState extends State<UserScreen> with TickerProviderStateMixin {
     );
   }
 
-  searchUser(UserScreen widget, String string) {
-    Github.getUsersBySearch(widget.data, string).then((response) {
+  searchUser(String string) {
+    hideProgress();
+    if (subscription != null) {
+      subscription.cancel();
+    }
+    showProgress();
+    var stream = Github.getUsersBySearch(accessToken, string).asStream();
+    subscription = stream.listen((response) {
       this.setState(() {
         print("Response ");
         getUserResponse = json.decode(response.body);
@@ -86,6 +111,7 @@ class UserScreenState extends State<UserScreen> with TickerProviderStateMixin {
         print(users);
         //print(getUserResponse);
       });
+      hideProgress();
     });
   }
 }

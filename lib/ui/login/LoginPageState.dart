@@ -1,15 +1,17 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:LoginUI/network/Github.dart';
-import 'package:LoginUI/ui/LoginPage.dart';
-import 'package:LoginUI/ui/UserScreen.dart';
+import 'package:LoginUI/ui/base/BaseStatefulState.dart';
+import 'package:LoginUI/ui/dashboard/DashboardPage.dart';
+import 'package:LoginUI/ui/login/LoginPage.dart';
 import 'package:LoginUI/utils/SharedPrefs.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:vector_math/vector_math_64.dart' as Vector;
 
-class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+class LoginPageState extends BaseStatefulState<LoginPage>
+    with TickerProviderStateMixin {
   final GlobalKey<EditableTextState> _emailState =
       new GlobalKey<EditableTextState>();
   final GlobalKey<EditableTextState> _passwordState =
@@ -23,17 +25,21 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   bool animateLogo = false;
   bool formVisible = false;
 
+  String username = "";
+  String password = "";
+
   @override
   void initState() {
     super.initState();
     SharedPrefs().getToken().then((value) {
-      if (value.isNotEmpty) {
+      if (value != null && value.isNotEmpty) {
         debugPrint("fetched SharedPrefrences $value");
-        fetchedAccessToken(value);
+        fetchedAccessToken();
+      } else {
+        _focusNode = new FocusNode();
+        startTime();
       }
     });
-    _focusNode = new FocusNode();
-    startTime();
   }
 
   startTime() async {
@@ -55,7 +61,7 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget prepareWidget(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
     //
@@ -66,7 +72,7 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     centerValue = centerValue - (LOGO_SIZE / 2);
 
     return new Scaffold(
-        key: _scaffoldKey,
+        key: scaffoldKey,
         body: new Stack(
           children: <Widget>[
             blurMask(context),
@@ -128,9 +134,10 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
           margin: const EdgeInsets.only(top: 20.0),
           child: new Column(children: <Widget>[
             email(context),
-            password(context),
+            passwordWidget(context),
             forgotPassword(context),
-            loginButton(context)
+            loginButton(context),
+            loginOauthButton(context)
           ]),
         ));
   }
@@ -143,10 +150,26 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             borderRadius: BorderRadius.all(Radius.circular(4.0)))),
         alignment: Alignment.center,
         child: new MaterialButton(
-            onPressed: loginNow,
+            onPressed: loginNowBasic,
             textColor: Colors.white,
             child: new Text(
               "Login",
+              style: TextStyle(fontSize: 20.0),
+            )));
+  }
+
+  loginOauthButton(BuildContext context) {
+    return new Container(
+        margin: EdgeInsets.all(16.0),
+        foregroundDecoration: ShapeDecoration.fromBoxDecoration(BoxDecoration(
+            color: Colors.white.withOpacity(0.1),
+            borderRadius: BorderRadius.all(Radius.circular(4.0)))),
+        alignment: Alignment.center,
+        child: new MaterialButton(
+            onPressed: loginNow,
+            textColor: Colors.white,
+            child: new Text(
+              "Login via Browser?",
               style: TextStyle(fontSize: 20.0),
             )));
   }
@@ -172,6 +195,7 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
           keyboardAppearance: Brightness.light,
           style: TextStyle(color: Colors.white, fontSize: 20.0),
           onFieldSubmitted: (String inputText) {
+            username = inputText;
             FocusScope.of(context).requestFocus(_focusNode);
           },
           decoration: InputDecoration(
@@ -181,7 +205,7 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         ));
   }
 
-  password(BuildContext context) {
+  passwordWidget(BuildContext context) {
     return new Container(
         child: new TextFormField(
           key: _passwordState,
@@ -192,6 +216,9 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
           keyboardType: TextInputType.text,
           textInputAction: TextInputAction.done,
           keyboardAppearance: Brightness.light,
+          onFieldSubmitted: (String passwordText) {
+            password = passwordText;
+          },
           style: TextStyle(color: Colors.white, fontSize: 20.0),
           decoration: InputDecoration(
               hintText: 'Password',
@@ -201,50 +228,31 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         margin: EdgeInsets.all(8.0));
   }
 
-  loginNow() async {
-    /* Apis.fetchPost().then((response) {
-      print("Response status: ${response.statusCode}");
-      print("Response body: ${response.body}");
-      _scaffoldKey.currentState.showBottomSheet<Null>((BuildContext context) {
-        return new Container(
-            child: new Text(response.body), margin: EdgeInsets.all(4.0));
-      });
-    }).catchError((error) {
-      print("Error body: $error");
-    }).whenComplete(() {});*/
-
-    showProgressBar();
-    Github.authenticate((success) {
-      SharedPrefs().saveToken(success);
-      _scaffoldKey.currentState.hideCurrentSnackBar();
-      _scaffoldKey.currentState.showBottomSheet<Null>((BuildContext context) {
-        return new Container(
-            child: new Text("Authenticated to Github!" + success),
-            margin: EdgeInsets.all(4.0));
-      });
-      fetchedAccessToken(success);
+  loginNowBasic() async {
+    showProgress();
+    Github.authenticateUsernamePassword(username, password).then((response) {
+      print(response.body);
+      var token = json.decode(response.body)['token'];
+      print(token);
+      SharedPrefs().saveToken("access_token=$token");
+      hideProgress();
+      fetchedAccessToken();
     });
   }
 
-  void fetchedAccessToken(String token) {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => UserScreen(data: token)),
-    );
+  loginNow() async {
+    showProgress();
+    Github.authenticate((success) {
+      SharedPrefs().saveToken(success);
+      hideProgress();
+      fetchedAccessToken();
+    });
   }
 
-  void showProgressBar() {
-    _scaffoldKey.currentState.showSnackBar(new SnackBar(
-      content: new Row(
-        children: <Widget>[
-          new Container(
-              child: new CircularProgressIndicator(),
-              margin: EdgeInsets.all(4.0)),
-          new Container(
-              child: new Text("Authenticating..."),
-              margin: EdgeInsets.all(4.0)),
-        ],
-      ),
-    ));
+  void fetchedAccessToken() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => DashboardPage()),
+    );
   }
 }

@@ -9,7 +9,9 @@ import 'package:url_launcher/url_launcher.dart';
 class Github {
   static String authorizeURL = "https://github.com/login/oauth/authorize";
   static String accessTokenURL = "https://github.com/login/oauth/access_token";
+  static String authorizeBasicUrl = "https://api.github.com/authorizations";
   static String getUserGithub = "https://api.github.com/search/users";
+  static String getMyReposGithub = "https://api.github.com/user/repos";
 
   static String clientId =
       "client_id"; //Required. The client ID you received from GitHub when you registered.
@@ -23,6 +25,9 @@ class Github {
       "state"; //An unguessable random string. It is used to protect against cross-site request forgery attacks.
   static String allowSignup =
       "allow_signup"; //Whether or not unauthenticated users will be offered an option to sign up for GitHub during the OAuth flow. The default is true. Use false in the case that a policy prohibits signups.
+
+  static String affiliationParamRepoSearch =
+      "&visibility=all&affiliation=owner,collaborator,organization_member";
 
   static Future<http.Response> authorize(Map<String, String> requestData) {
     return http.get(authorizeURL, headers: requestData);
@@ -46,7 +51,7 @@ class Github {
       return "true";
     });
     return headers;
-  }//https://github.com/login/oauth/authorize?client_id=5eebe59bc6ed95a4f4b1&redirect_uri	=http://localhost:8080/&scope=repo,user&state=5eebe59bc6ed95a4f4b1&allow_signup=true&
+  } //https://github.com/login/oauth/authorize?client_id=5eebe59bc6ed95a4f4b1&redirect_uri	=http://localhost:8080/&scope=repo,user&state=5eebe59bc6ed95a4f4b1&allow_signup=true&
 
   static Future<Stream<String>> _server() async {
     final StreamController<String> onCode = new StreamController();
@@ -121,7 +126,6 @@ class Github {
     print(request.uri.toString());
     print(json.encode(map));
     HttpClientResponse response = await request.close();
-    // todo - you should check the response.statusCode
     print(response.statusCode);
     String reply = await response.transform(utf8.decoder).join();
     httpClient.close();
@@ -132,5 +136,41 @@ class Github {
     String fullUrl = getUserGithub + "?" + response + "&q=" + value;
     print(fullUrl);
     return http.get(fullUrl);
+  }
+
+  static Future<http.Response> getAllMyRepos(String accessToken) {
+    String fullUrl =
+        getMyReposGithub + "?" + accessToken + affiliationParamRepoSearch;
+    print(fullUrl);
+    return http.get(fullUrl);
+  }
+
+  static Future<http.Response> getFromUrl(String reposUrl, String accessToken) {
+    String fullUrl = reposUrl + "?" + accessToken + affiliationParamRepoSearch;
+    print(fullUrl);
+    return http.get(fullUrl);
+  }
+
+  static Future<http.Response> authenticateUsernamePassword(
+      String username, String password) async {
+    var value = base64Encode(utf8.encode('$username:$password'));
+    var authrorization = 'Basic $value';
+    print(authrorization);
+    print(authorizeBasicUrl);
+    var list = List<String>();
+    list.add("user");
+    list.add("repo");
+    list.add("gist");
+    list.add("notifications");
+    list.add("read:org");
+
+    Map map = {
+      clientId: AppConstants.GITHUB_CLIENT_ID,
+      "scopes": list,
+      clientSecret: AppConstants.GITHUB_CLIENT_SECRET,
+    };
+    print(map);
+    return http.post(authorizeBasicUrl,
+        headers: {'Authorization': authrorization}, body: json.encode(map));
   }
 }
