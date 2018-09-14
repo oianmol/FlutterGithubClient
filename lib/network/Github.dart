@@ -28,6 +28,8 @@ class Github {
   static String affiliationParamRepoSearch =
       "&visibility=all&affiliation=owner,collaborator,organization_member";
 
+  static var basicAuthUrl = "https://api.github.com/user";
+
   static Future<http.Response> authorize(Map<String, String> requestData) {
     return http.get(authorizeURL, headers: requestData);
   }
@@ -149,5 +151,16 @@ class Github {
     String fullUrl = reposUrl + "?" + accessToken + affiliationParamRepoSearch;
     print(fullUrl);
     return http.get(fullUrl);
+  }
+
+  static Future<http.Response> authenticateUsernamePassword(
+      String username, String password) async {
+    print(username);
+    print(password);
+    var value = base64Encode(utf8.encode('$username:$password'));
+    var authrorization = 'Basic $value';
+    print(authrorization);
+    print(basicAuthUrl);
+    return http.get(basicAuthUrl, headers: {'authorization': authrorization});
   }
 }

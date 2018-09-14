@@ -9,7 +9,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:vector_math/vector_math_64.dart' as Vector;
 
-class LoginPageState extends BaseStatefulState<LoginPage> with TickerProviderStateMixin {
+class LoginPageState extends BaseStatefulState<LoginPage>
+    with TickerProviderStateMixin {
   final GlobalKey<EditableTextState> _emailState =
       new GlobalKey<EditableTextState>();
   final GlobalKey<EditableTextState> _passwordState =
@@ -22,6 +23,9 @@ class LoginPageState extends BaseStatefulState<LoginPage> with TickerProviderSta
   bool splashVisible = true;
   bool animateLogo = false;
   bool formVisible = false;
+
+  String username = "";
+  String password = "";
 
   @override
   void initState() {
@@ -129,9 +133,10 @@ class LoginPageState extends BaseStatefulState<LoginPage> with TickerProviderSta
           margin: const EdgeInsets.only(top: 20.0),
           child: new Column(children: <Widget>[
             email(context),
-            password(context),
+            passwordWidget(context),
             forgotPassword(context),
-            loginButton(context)
+            loginButton(context),
+            loginOauthButton(context)
           ]),
         ));
   }
@@ -144,10 +149,26 @@ class LoginPageState extends BaseStatefulState<LoginPage> with TickerProviderSta
             borderRadius: BorderRadius.all(Radius.circular(4.0)))),
         alignment: Alignment.center,
         child: new MaterialButton(
-            onPressed: loginNow,
+            onPressed: loginNowBasic,
             textColor: Colors.white,
             child: new Text(
               "Login",
+              style: TextStyle(fontSize: 20.0),
+            )));
+  }
+
+  loginOauthButton(BuildContext context) {
+    return new Container(
+        margin: EdgeInsets.all(16.0),
+        foregroundDecoration: ShapeDecoration.fromBoxDecoration(BoxDecoration(
+            color: Colors.white.withOpacity(0.1),
+            borderRadius: BorderRadius.all(Radius.circular(4.0)))),
+        alignment: Alignment.center,
+        child: new MaterialButton(
+            onPressed: loginNow,
+            textColor: Colors.white,
+            child: new Text(
+              "Login via Browser?",
               style: TextStyle(fontSize: 20.0),
             )));
   }
@@ -173,6 +194,7 @@ class LoginPageState extends BaseStatefulState<LoginPage> with TickerProviderSta
           keyboardAppearance: Brightness.light,
           style: TextStyle(color: Colors.white, fontSize: 20.0),
           onFieldSubmitted: (String inputText) {
+            username = inputText;
             FocusScope.of(context).requestFocus(_focusNode);
           },
           decoration: InputDecoration(
@@ -182,7 +204,7 @@ class LoginPageState extends BaseStatefulState<LoginPage> with TickerProviderSta
         ));
   }
 
-  password(BuildContext context) {
+  passwordWidget(BuildContext context) {
     return new Container(
         child: new TextFormField(
           key: _passwordState,
@@ -193,6 +215,9 @@ class LoginPageState extends BaseStatefulState<LoginPage> with TickerProviderSta
           keyboardType: TextInputType.text,
           textInputAction: TextInputAction.done,
           keyboardAppearance: Brightness.light,
+          onFieldSubmitted: (String passwordText){
+            password = passwordText;
+          },
           style: TextStyle(color: Colors.white, fontSize: 20.0),
           decoration: InputDecoration(
               hintText: 'Password',
@@ -202,16 +227,18 @@ class LoginPageState extends BaseStatefulState<LoginPage> with TickerProviderSta
         margin: EdgeInsets.all(8.0));
   }
 
+  loginNowBasic() async {
+    showProgress();
+    Github.authenticateUsernamePassword(username, password).then((response) {
+      print(response.body);
+    });
+  }
+
   loginNow() async {
     showProgress();
     Github.authenticate((success) {
       SharedPrefs().saveToken(success);
       hideProgress();
-      scaffoldKey.currentState.showBottomSheet<Null>((BuildContext context) {
-        return new Container(
-            child: new Text("Authenticated to Github!" + success),
-            margin: EdgeInsets.all(4.0));
-      });
       fetchedAccessToken();
     });
   }
