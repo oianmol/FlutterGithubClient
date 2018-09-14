@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:LoginUI/network/Github.dart';
 import 'package:LoginUI/ui/base/BaseStatefulState.dart';
@@ -215,7 +216,7 @@ class LoginPageState extends BaseStatefulState<LoginPage>
           keyboardType: TextInputType.text,
           textInputAction: TextInputAction.done,
           keyboardAppearance: Brightness.light,
-          onFieldSubmitted: (String passwordText){
+          onFieldSubmitted: (String passwordText) {
             password = passwordText;
           },
           style: TextStyle(color: Colors.white, fontSize: 20.0),
@@ -231,6 +232,11 @@ class LoginPageState extends BaseStatefulState<LoginPage>
     showProgress();
     Github.authenticateUsernamePassword(username, password).then((response) {
       print(response.body);
+      var token = json.decode(response.body)['token'];
+      print(token);
+      SharedPrefs().saveToken("access_token=$token");
+      hideProgress();
+      fetchedAccessToken();
     });
   }
 

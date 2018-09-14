@@ -9,6 +9,7 @@ import 'package:url_launcher/url_launcher.dart';
 class Github {
   static String authorizeURL = "https://github.com/login/oauth/authorize";
   static String accessTokenURL = "https://github.com/login/oauth/access_token";
+  static String authorizeBasicUrl = "https://api.github.com/authorizations";
   static String getUserGithub = "https://api.github.com/search/users";
   static String getMyReposGithub = "https://api.github.com/user/repos";
 
@@ -27,8 +28,6 @@ class Github {
 
   static String affiliationParamRepoSearch =
       "&visibility=all&affiliation=owner,collaborator,organization_member";
-
-  static var basicAuthUrl = "https://api.github.com/user";
 
   static Future<http.Response> authorize(Map<String, String> requestData) {
     return http.get(authorizeURL, headers: requestData);
@@ -127,7 +126,6 @@ class Github {
     print(request.uri.toString());
     print(json.encode(map));
     HttpClientResponse response = await request.close();
-    // todo - you should check the response.statusCode
     print(response.statusCode);
     String reply = await response.transform(utf8.decoder).join();
     httpClient.close();
@@ -155,12 +153,24 @@ class Github {
 
   static Future<http.Response> authenticateUsernamePassword(
       String username, String password) async {
-    print(username);
-    print(password);
     var value = base64Encode(utf8.encode('$username:$password'));
     var authrorization = 'Basic $value';
     print(authrorization);
-    print(basicAuthUrl);
-    return http.get(basicAuthUrl, headers: {'authorization': authrorization});
+    print(authorizeBasicUrl);
+    var list = List<String>();
+    list.add("user");
+    list.add("repo");
+    list.add("gist");
+    list.add("notifications");
+    list.add("read:org");
+
+    Map map = {
+      clientId: AppConstants.GITHUB_CLIENT_ID,
+      "scopes": list,
+      clientSecret: AppConstants.GITHUB_CLIENT_SECRET,
+    };
+    print(map);
+    return http.post(authorizeBasicUrl,
+        headers: {'Authorization': authrorization}, body: json.encode(map));
   }
 }
