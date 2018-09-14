@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:LoginUI/network/Github.dart';
 import 'package:LoginUI/ui/searchusers/UserSearchPage.dart';
 import 'package:flutter/material.dart';
+import 'package:http/src/response.dart';
 
 class UserSearchPageState extends State<UserSearchPage>
     with TickerProviderStateMixin {
@@ -12,6 +14,8 @@ class UserSearchPageState extends State<UserSearchPage>
   List<dynamic> users;
   Icon actionIcon = new Icon(Icons.search);
   Widget appBarTitle = new Text("Search Github Users...");
+
+  StreamSubscription<Response> subscription;
 
   @override
   void initState() {
@@ -38,11 +42,15 @@ class UserSearchPageState extends State<UserSearchPage>
             padding: new EdgeInsets.all(8.0),
             itemCount: users == null ? 0 : users.length,
             itemBuilder: (BuildContext context, int index) {
-              return new Container(child: new Row(children: <Widget>[
-                  new Image.network(users[index]['avatar_url'],
-                  width: 50.0, height: 50.0),
-              new Container(margin:EdgeInsets.only(left: 8.0),child: new Text('${users[index]['login']}'))
-              ]),margin: EdgeInsets.all(8.0));
+              return new Container(
+                  child: new Row(children: <Widget>[
+                    new Image.network(users[index]['avatar_url'],
+                        width: 50.0, height: 50.0),
+                    new Container(
+                        margin: EdgeInsets.only(left: 8.0),
+                        child: new Text('${users[index]['login']}'))
+                  ]),
+                  margin: EdgeInsets.all(8.0));
             }));
   }
 
@@ -71,6 +79,7 @@ class UserSearchPageState extends State<UserSearchPage>
                   );
                 } else {
                   this.actionIcon = new Icon(Icons.search);
+                  this.users = null;
                   this.appBarTitle = new Text("Search Github Users...");
                 }
               });
@@ -80,7 +89,11 @@ class UserSearchPageState extends State<UserSearchPage>
   }
 
   searchUser(UserSearchPage widget, String string) {
-    Github.getUsersBySearch(widget.data, string).then((response) {
+    if (subscription != null) {
+      subscription.cancel();
+    }
+    var stream = Github.getUsersBySearch(widget.data, string).asStream();
+    subscription = stream.listen((response) {
       this.setState(() {
         print("Response ");
         getUserResponse = json.decode(response.body);
