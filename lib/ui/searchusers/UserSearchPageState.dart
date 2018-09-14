@@ -1,10 +1,10 @@
 import 'dart:convert';
 
 import 'package:LoginUI/network/Github.dart';
-import 'package:LoginUI/ui/UserScreen.dart';
+import 'package:LoginUI/ui/searchusers/UserSearchPage.dart';
 import 'package:flutter/material.dart';
 
-class UserScreenState extends State<UserScreen> with TickerProviderStateMixin {
+class UserSearchPageState extends State<UserSearchPage> with TickerProviderStateMixin {
   double USER_IMAGE_SIZE = 200.0;
 
   dynamic getUserResponse;
@@ -38,9 +38,9 @@ class UserScreenState extends State<UserScreen> with TickerProviderStateMixin {
             padding: new EdgeInsets.all(8.0),
             itemCount: users == null ? 0 : users.length,
             itemBuilder: (BuildContext context, int index) {
-              return new Column(children: <Widget>[new ListTile(
-                title: Text('title ${users[index]['login']}'),
-              ),new Image.network(users[index]['avatar_url'],width: 200.0,height: 200.0)]);
+              return new Row(children: <Widget>[new ListTile(
+                title: Text('User: ${users[index]['login']}'),
+              ),new Image.network(users[index]['avatar_url'],width: 100.0,height: 100.0)]);
             }));
   }
 
@@ -77,7 +77,7 @@ class UserScreenState extends State<UserScreen> with TickerProviderStateMixin {
     );
   }
 
-  searchUser(UserScreen widget, String string) {
+  searchUser(UserSearchPage widget, String string) {
     Github.getUsersBySearch(widget.data, string).then((response) {
       this.setState(() {
         print("Response ");

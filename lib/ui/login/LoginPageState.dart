@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:LoginUI/network/Github.dart';
-import 'package:LoginUI/ui/LoginPage.dart';
-import 'package:LoginUI/ui/UserScreen.dart';
+import 'package:LoginUI/ui/login/LoginPage.dart';
+import 'package:LoginUI/ui/searchusers/UserSearchPage.dart';
 import 'package:LoginUI/utils/SharedPrefs.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -229,7 +229,7 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   void fetchedAccessToken(String token) {
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => UserScreen(data: token)),
+      MaterialPageRoute(builder: (context) => UserSearchPage(data: token)),
     );
   }
 
