@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:LoginUI/network/Github.dart';
+import 'package:LoginUI/ui/dashboard/DashboardPage.dart';
 import 'package:LoginUI/ui/login/LoginPage.dart';
 import 'package:LoginUI/ui/searchusers/UserSearchPage.dart';
 import 'package:LoginUI/utils/SharedPrefs.dart';
@@ -30,10 +31,11 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
       if (value.isNotEmpty) {
         debugPrint("fetched SharedPrefrences $value");
         fetchedAccessToken();
+      } else {
+        _focusNode = new FocusNode();
+        startTime();
       }
     });
-    _focusNode = new FocusNode();
-    startTime();
   }
 
   startTime() async {
@@ -42,18 +44,16 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   }
 
   void switchState() {
-    if (widget != null) {
-      setState(() {
-        // This call to setState tells the Flutter framework that something has
-        // changed in this State, which causes it to rerun the build method below
-        // so that the display can reflect the updated values. If we changed
-        // _counter without calling setState(), then the build method would not be
-        // called again, and so nothing would appear to happen.
-        splashVisible = false;
-        animateLogo = true;
-        formVisible = true;
-      });
-    }
+    setState(() {
+      // This call to setState tells the Flutter framework that something has
+      // changed in this State, which causes it to rerun the build method below
+      // so that the display can reflect the updated values. If we changed
+      // _counter without calling setState(), then the build method would not be
+      // called again, and so nothing would appear to happen.
+      splashVisible = false;
+      animateLogo = true;
+      formVisible = true;
+    });
   }
 
   @override
@@ -229,9 +229,9 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   }
 
   void fetchedAccessToken() {
-    Navigator.pushReplacement(
+    Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => UserSearchPage()),
+      MaterialPageRoute(builder: (context) => DashboardPage()),
     );
   }
 

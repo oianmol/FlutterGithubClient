@@ -1,25 +1,27 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:LoginUI/network/Github.dart';
 import 'package:LoginUI/ui/repolist/RepoListPage.dart';
 import 'package:LoginUI/utils/SharedPrefs.dart';
 import 'package:flutter/material.dart';
+import 'package:http/src/response.dart';
 
-class RepoListPageState extends State<RepoListPage> with TickerProviderStateMixin {
-  double USER_IMAGE_SIZE = 200.0;
-
-  dynamic getReposResponse;
+class RepoListPageState extends State<RepoListPage>
+    with TickerProviderStateMixin {
   List<dynamic> repos;
-  Icon actionIcon = new Icon(Icons.search);
-  Widget appBarTitle = new Text("Search your Repos...");
+  Widget appBarTitle = new Text("My Repos");
 
   String accessToken;
+
+  StreamSubscription<Response> subscriptionMyRepos;
 
   @override
   void initState() {
     super.initState();
-    SharedPrefs().getToken().then((token){
+    SharedPrefs().getToken().then((token) {
       accessToken = token;
+      getMyRepos();
     });
   }
 
@@ -33,10 +35,9 @@ class RepoListPageState extends State<RepoListPage> with TickerProviderStateMixi
     // than having to individually change instances of widgets.
     return new Scaffold(
         body: new Column(
-          children: <Widget>[toolbarAndroid(), listVIew()],
-        ));
+      children: <Widget>[toolbarAndroid(), listVIew()],
+    ));
   }
-
 
   listVIew() {
     return new Expanded(
@@ -44,9 +45,25 @@ class RepoListPageState extends State<RepoListPage> with TickerProviderStateMixi
             padding: new EdgeInsets.all(8.0),
             itemCount: repos == null ? 0 : repos.length,
             itemBuilder: (BuildContext context, int index) {
-              return new Column(children: <Widget>[new ListTile(
-                title: Text('Repo ${repos[index]['login']}'),
-              ),new Image.network(repos[index]['avatar_url'],width: 200.0,height: 200.0)]);
+              return new Container(
+                alignment: Alignment.centerLeft,
+                margin: EdgeInsets.only(top: 5.0, left: 5.0, right: 5.0),
+                child: new Column(children: <Widget>[
+                  new Container(
+                    alignment: Alignment.centerLeft,
+                    margin: EdgeInsets.only(top: 5.0, left: 5.0),
+                    child: new Text(
+                      '${repos[index]['name']}',style: TextStyle(fontStyle: FontStyle.normal,fontSize: 18.0,color: Colors.green)
+                    ),
+                  ),
+                  new Container(
+                    alignment: Alignment.centerLeft,
+                    margin: EdgeInsets.only(top: 5.0, left: 5.0),
+                    child: new Text(
+                        'Repo Type: ${(repos[index]['private'] as bool) ? "Private" : "Public"}',style: TextStyle(fontStyle: FontStyle.italic,fontSize: 14.0,color:Colors.blueGrey)),
+                  )
+                ]),
+              );
             }));
   }
 
@@ -54,41 +71,19 @@ class RepoListPageState extends State<RepoListPage> with TickerProviderStateMixi
     return new AppBar(
       centerTitle: false,
       title: appBarTitle,
-      actions: <Widget>[
-        new IconButton(
-            icon: actionIcon,
-            onPressed: () {
-              setState(() {
-                if (this.actionIcon.icon == Icons.search) {
-                  this.actionIcon = new Icon(Icons.close);
-                  this.appBarTitle = new TextField(
-                    onChanged: (string) {
-                      searchUser(string);
-                    },
-                    style: new TextStyle(
-                      color: Colors.white,
-                    ),
-                    decoration: new InputDecoration(
-                        prefixIcon: new Icon(Icons.search, color: Colors.white),
-                        hintText: "Search...",
-                        hintStyle: new TextStyle(color: Colors.white)),
-                  );
-                } else {
-                  this.actionIcon = new Icon(Icons.search);
-                  this.appBarTitle = new Text("Search Github Users...");
-                }
-              });
-            })
-      ],
     );
   }
 
-  searchUser(String string) {
-    Github.getUsersBySearch(accessToken,string).then((response) {
+  getMyRepos() {
+    if (subscriptionMyRepos != null) {
+      subscriptionMyRepos.cancel();
+    }
+
+    var stream = Github.getAllMyRepos(accessToken).asStream();
+    subscriptionMyRepos = stream.listen((response) {
       this.setState(() {
-        print("Response ");
-        getReposResponse = json.decode(response.body);
-        repos = getReposResponse['items'] as List;
+        print(response.body);
+        repos = json.decode(response.body) as List;
         print(repos);
         //print(getUserResponse);
       });
