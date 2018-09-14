@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:LoginUI/network/Github.dart';
 import 'package:LoginUI/ui/repolist/RepoListPage.dart';
+import 'package:LoginUI/utils/SharedPrefs.dart';
 import 'package:flutter/material.dart';
 
 class RepoListPageState extends State<RepoListPage> with TickerProviderStateMixin {
@@ -12,9 +13,14 @@ class RepoListPageState extends State<RepoListPage> with TickerProviderStateMixi
   Icon actionIcon = new Icon(Icons.search);
   Widget appBarTitle = new Text("Search your Repos...");
 
+  String accessToken;
+
   @override
   void initState() {
     super.initState();
+    SharedPrefs().getToken().then((token){
+      accessToken = token;
+    });
   }
 
   @override
@@ -57,7 +63,7 @@ class RepoListPageState extends State<RepoListPage> with TickerProviderStateMixi
                   this.actionIcon = new Icon(Icons.close);
                   this.appBarTitle = new TextField(
                     onChanged: (string) {
-                      searchUser(widget, string);
+                      searchUser(string);
                     },
                     style: new TextStyle(
                       color: Colors.white,
@@ -77,8 +83,8 @@ class RepoListPageState extends State<RepoListPage> with TickerProviderStateMixi
     );
   }
 
-  searchUser(RepoListPage widget, String string) {
-    Github.getUsersBySearch(widget.data, string).then((response) {
+  searchUser(String string) {
+    Github.getUsersBySearch(accessToken,string).then((response) {
       this.setState(() {
         print("Response ");
         getReposResponse = json.decode(response.body);

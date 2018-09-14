@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:LoginUI/network/Github.dart';
 import 'package:LoginUI/ui/searchusers/UserSearchPage.dart';
+import 'package:LoginUI/utils/SharedPrefs.dart';
 import 'package:flutter/material.dart';
 import 'package:http/src/response.dart';
 
@@ -17,9 +18,14 @@ class UserSearchPageState extends State<UserSearchPage>
 
   StreamSubscription<Response> subscription;
 
+  String accessToken;
+
   @override
   void initState() {
     super.initState();
+    SharedPrefs().getToken().then((token){
+      accessToken = token;
+    });
   }
 
   @override
@@ -67,7 +73,7 @@ class UserSearchPageState extends State<UserSearchPage>
                   this.actionIcon = new Icon(Icons.close);
                   this.appBarTitle = new TextField(
                     onChanged: (string) {
-                      searchUser(widget, string);
+                      searchUser(string);
                     },
                     style: new TextStyle(
                       color: Colors.white,
@@ -88,11 +94,11 @@ class UserSearchPageState extends State<UserSearchPage>
     );
   }
 
-  searchUser(UserSearchPage widget, String string) {
+  searchUser(String string) {
     if (subscription != null) {
       subscription.cancel();
     }
-    var stream = Github.getUsersBySearch(widget.data, string).asStream();
+    var stream = Github.getUsersBySearch(accessToken, string).asStream();
     subscription = stream.listen((response) {
       this.setState(() {
         print("Response ");

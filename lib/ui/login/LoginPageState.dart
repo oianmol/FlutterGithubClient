@@ -29,7 +29,7 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     SharedPrefs().getToken().then((value) {
       if (value.isNotEmpty) {
         debugPrint("fetched SharedPrefrences $value");
-        fetchedAccessToken(value);
+        fetchedAccessToken();
       }
     });
     _focusNode = new FocusNode();
@@ -228,10 +228,10 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     });
   }
 
-  void fetchedAccessToken(String token) {
+  void fetchedAccessToken() {
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => UserSearchPage(data: token)),
+      MaterialPageRoute(builder: (context) => UserSearchPage()),
     );
   }
 
