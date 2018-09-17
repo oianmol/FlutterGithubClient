@@ -1,17 +1,16 @@
 import 'dart:async';
 
-import 'package:LoginUI/network/Github.dart';
 import 'package:LoginUI/ui/LoginPage.dart';
-import 'package:LoginUI/ui/UserScreen.dart';
 import 'package:flutter/material.dart';
 import 'package:vector_math/vector_math_64.dart' as Vector;
+import 'package:LoginUI/network/apis.dart';
 
 class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final GlobalKey<EditableTextState> _usernameState =
-      new GlobalKey<EditableTextState>();
+  new GlobalKey<EditableTextState>();
   final GlobalKey<EditableTextState> _passwordState =
-      new GlobalKey<EditableTextState>();
+  new GlobalKey<EditableTextState>();
 
   FocusNode _focusNode;
   double centerValue;
@@ -20,6 +19,12 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   bool splashVisible = true;
   bool animateLogo = false;
   bool formVisible = false;
+
+  String usernameText = "";
+  String passwordText = "";
+
+  final usernameTextController = TextEditingController();
+  final passwordTextController = TextEditingController();
 
   @override
   void initState() {
@@ -54,7 +59,10 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
-    centerValue = MediaQuery.of(context).size.height / 2;
+    centerValue = MediaQuery
+        .of(context)
+        .size
+        .height / 2;
     centerValue = centerValue - (LOGO_SIZE / 2);
     return new Scaffold(
         key: _scaffoldKey,
@@ -65,6 +73,14 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             logoCenter(context)
           ],
         ));
+  }
+
+
+  @override
+  void dispose() {
+    usernameTextController.dispose()
+    passwordTextController.dispose()
+    super.dispose()
   }
 
   getEndOffset() {
@@ -159,6 +175,7 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         child: new TextFormField(
           key: _usernameState,
           maxLines: 1,
+          controller: usernameTextController,
           textInputAction: TextInputAction.next,
           keyboardType: TextInputType.emailAddress,
           keyboardAppearance: Brightness.light,
@@ -179,6 +196,7 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
           key: _passwordState,
           focusNode: _focusNode,
           maxLines: 1,
+          controller: passwordTextController,
           autocorrect: false,
           obscureText: true,
           keyboardType: TextInputType.text,
@@ -194,7 +212,9 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   }
 
   loginNow() async {
-    /* Apis.fetchPost().then((response) {
+    Apis.fetchCurrentUser(
+        usernameTextController.text.trim(), passwordTextController.text)
+        .then((response) {
       print("Response status: ${response.statusCode}");
       print("Response body: ${response.body}");
       _scaffoldKey.currentState.showBottomSheet<Null>((BuildContext context) {
@@ -203,21 +223,9 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
       });
     }).catchError((error) {
       print("Error body: $error");
-    }).whenComplete(() {});*/
+    }).whenComplete(() {});
 
     showProgressBar();
-    Github.authenticate((success) {
-      _scaffoldKey.currentState.hideCurrentSnackBar();
-      _scaffoldKey.currentState.showBottomSheet<Null>((BuildContext context) {
-        return new Container(
-            child: new Text("Authenticated to Github!" + success),
-            margin: EdgeInsets.all(4.0));
-      });
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => UserScreen(data: success)),
-      );
-    });
   }
 
   void showProgressBar() {
@@ -228,7 +236,7 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
               child: new CircularProgressIndicator(),
               margin: EdgeInsets.all(4.0)),
           new Container(
-              child: new Text("Authenticating..."),
+              child: new Text("Siging in..."),
               margin: EdgeInsets.all(4.0)),
         ],
       ),
