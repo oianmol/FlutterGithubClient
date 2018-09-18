@@ -8,9 +8,9 @@ import 'package:LoginUI/network/apis.dart';
 class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   final GlobalKey<EditableTextState> _usernameState =
-  new GlobalKey<EditableTextState>();
+      new GlobalKey<EditableTextState>();
   final GlobalKey<EditableTextState> _passwordState =
-  new GlobalKey<EditableTextState>();
+      new GlobalKey<EditableTextState>();
 
   FocusNode _focusNode;
   double centerValue;
@@ -59,10 +59,7 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
-    centerValue = MediaQuery
-        .of(context)
-        .size
-        .height / 2;
+    centerValue = MediaQuery.of(context).size.height / 2;
     centerValue = centerValue - (LOGO_SIZE / 2);
     return new Scaffold(
         key: _scaffoldKey,
@@ -75,12 +72,11 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         ));
   }
 
-
   @override
   void dispose() {
-    usernameTextController.dispose()
-    passwordTextController.dispose()
-    super.dispose()
+    usernameTextController.dispose();
+    passwordTextController.dispose();
+    super.dispose();
   }
 
   getEndOffset() {
@@ -212,8 +208,21 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   }
 
   loginNow() async {
+    //hides keyboard.
+    FocusScope.of(context).requestFocus(FocusNode());
+
+    if (!isValidUsername(usernameTextController.text)) {
+      showErrorInvalidUsername();
+      return;
+    }
+
+    if (!isValidPassword(passwordTextController.text)) {
+      showErrorInvalidPassword();
+      return;
+    }
+
     Apis.fetchCurrentUser(
-        usernameTextController.text.trim(), passwordTextController.text)
+            usernameTextController.text.trim(), passwordTextController.text)
         .then((response) {
       print("Response status: ${response.statusCode}");
       print("Response body: ${response.body}");
@@ -236,7 +245,40 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
               child: new CircularProgressIndicator(),
               margin: EdgeInsets.all(4.0)),
           new Container(
-              child: new Text("Siging in..."),
+              child: new Text("Signing in..."), margin: EdgeInsets.all(4.0)),
+        ],
+      ),
+    ));
+  }
+
+  bool isValidUsername(String text) {
+    return text.trim().isNotEmpty;
+  }
+
+  bool isValidPassword(String text) {
+    return text.isNotEmpty;
+  }
+
+  void showErrorInvalidUsername() {
+    _scaffoldKey.currentState.removeCurrentSnackBar();
+    _scaffoldKey.currentState.showSnackBar(new SnackBar(
+      content: new Row(
+        children: <Widget>[
+          new Container(
+              child: new Text("Username cannot be blank/empty"),
+              margin: EdgeInsets.all(4.0)),
+        ],
+      ),
+    ));
+  }
+
+  void showErrorInvalidPassword() {
+    _scaffoldKey.currentState.removeCurrentSnackBar();
+    _scaffoldKey.currentState.showSnackBar(new SnackBar(
+      content: new Row(
+        children: <Widget>[
+          new Container(
+              child: new Text("Password cannot be blank/empty"),
               margin: EdgeInsets.all(4.0)),
         ],
       ),
