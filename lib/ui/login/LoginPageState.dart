@@ -1,23 +1,18 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:LoginUI/ui/LoginPage.dart';
+import 'package:LoginUI/ui/login/LoginPage.dart';
 import 'package:LoginUI/network/Github.dart';
 import 'package:LoginUI/ui/base/BaseStatefulState.dart';
 import 'package:LoginUI/ui/dashboard/DashboardPage.dart';
-import 'package:LoginUI/ui/login/LoginPage.dart';
 import 'package:LoginUI/utils/SharedPrefs.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:vector_math/vector_math_64.dart' as Vector;
-import 'package:LoginUI/network/apis.dart';
 
-class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  final GlobalKey<EditableTextState> _usernameState =
 class LoginPageState extends BaseStatefulState<LoginPage>
     with TickerProviderStateMixin {
-  final GlobalKey<EditableTextState> _emailState =
+  final GlobalKey<EditableTextState> _usernameState =
       new GlobalKey<EditableTextState>();
   final GlobalKey<EditableTextState> _passwordState =
       new GlobalKey<EditableTextState>();
@@ -35,9 +30,6 @@ class LoginPageState extends BaseStatefulState<LoginPage>
 
   final usernameTextController = TextEditingController();
   final passwordTextController = TextEditingController();
-
-  String username = "";
-  String password = "";
 
   @override
   void initState() {
@@ -169,7 +161,7 @@ class LoginPageState extends BaseStatefulState<LoginPage>
         child: new SizedBox(
             width: double.infinity,
             child: new MaterialButton(
-                onPressed: loginNow,
+                onPressed: loginNowBasic,
                 textColor: Colors.white,
                 child: new Text(
                   "Login",
@@ -215,7 +207,6 @@ class LoginPageState extends BaseStatefulState<LoginPage>
           keyboardAppearance: Brightness.light,
           style: TextStyle(color: Colors.white, fontSize: 20.0),
           onFieldSubmitted: (String inputText) {
-            username = inputText;
             FocusScope.of(context).requestFocus(_focusNode);
           },
           decoration: InputDecoration(
@@ -247,18 +238,6 @@ class LoginPageState extends BaseStatefulState<LoginPage>
   }
 
   loginNowBasic() async {
-    showProgress();
-    Github.authenticateUsernamePassword(username, password).then((response) {
-      print(response.body);
-      var token = json.decode(response.body)['token'];
-      print(token);
-      SharedPrefs().saveToken("access_token=$token");
-      hideProgress();
-      fetchedAccessToken();
-    });
-  }
-
-  loginNow() async {
     //hides keyboard.
     FocusScope.of(context).requestFocus(FocusNode());
 
@@ -272,36 +251,40 @@ class LoginPageState extends BaseStatefulState<LoginPage>
       return;
     }
 
-    Apis.fetchCurrentUser(
-            usernameTextController.text.trim(), passwordTextController.text)
+    showProgress();
+    Github.authenticateUsernamePassword(
+            usernameTextController.text, passwordTextController.text)
         .then((response) {
-      print("Response status: ${response.statusCode}");
-      print("Response body: ${response.body}");
-    }).catchError((error) {
-      print("Error body: $error");
-    }).whenComplete(() {});
-
-    showProgressBar();
+      print(response.body);
+      var token = json.decode(response.body)['token'];
+      print(token);
+      SharedPrefs().saveToken("access_token=$token");
+      hideProgress();
+      fetchedAccessToken();
+    });
   }
 
   loginNow() async {
-  showProgress();
-  Github.authenticate((success) {
-  SharedPrefs().saveToken(success);
-  hideProgress();
-  fetchedAccessToken();
-  });
+    //hides keyboard.
+    FocusScope.of(context).requestFocus(FocusNode());
+
+    showProgress();
+    Github.authenticate((success) {
+      SharedPrefs().saveToken(success);
+      hideProgress();
+      fetchedAccessToken();
+    });
   }
 
   void fetchedAccessToken() {
-  Navigator.push(
-  context,
-  MaterialPageRoute(builder: (context) => DashboardPage()),
-  );
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => DashboardPage()),
+    );
   }
 
   void showProgressBar() {
-    _scaffoldKey.currentState.showSnackBar(new SnackBar(
+    scaffoldKey.currentState.showSnackBar(new SnackBar(
       content: new Row(
         children: <Widget>[
           new Container(
@@ -323,8 +306,8 @@ class LoginPageState extends BaseStatefulState<LoginPage>
   }
 
   void showErrorInvalidUsername() {
-    _scaffoldKey.currentState.removeCurrentSnackBar();
-    _scaffoldKey.currentState.showSnackBar(new SnackBar(
+    scaffoldKey.currentState.removeCurrentSnackBar();
+    scaffoldKey.currentState.showSnackBar(new SnackBar(
       content: new Row(
         children: <Widget>[
           new Container(
@@ -336,8 +319,8 @@ class LoginPageState extends BaseStatefulState<LoginPage>
   }
 
   void showErrorInvalidPassword() {
-    _scaffoldKey.currentState.removeCurrentSnackBar();
-    _scaffoldKey.currentState.showSnackBar(new SnackBar(
+    scaffoldKey.currentState.removeCurrentSnackBar();
+    scaffoldKey.currentState.showSnackBar(new SnackBar(
       content: new Row(
         children: <Widget>[
           new Container(
