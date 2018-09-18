@@ -226,10 +226,6 @@ class LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         .then((response) {
       print("Response status: ${response.statusCode}");
       print("Response body: ${response.body}");
-      _scaffoldKey.currentState.showBottomSheet<Null>((BuildContext context) {
-        return new Container(
-            child: new Text(response.body), margin: EdgeInsets.all(4.0));
-      });
     }).catchError((error) {
       print("Error body: $error");
     }).whenComplete(() {});
