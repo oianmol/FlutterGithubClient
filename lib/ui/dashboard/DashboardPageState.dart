@@ -28,7 +28,6 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
   void dispose() {
     super.dispose();
     subscriptionMyProfile?.cancel();
-    
   }
 
   toolbarAndroid() {
@@ -49,15 +48,41 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
         children: <Widget>[
           DrawerHeader(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                Container(
-                    child: new CircleAvatar(
-                  backgroundImage: new NetworkImage(
-                      json.decode(currentUserProfile)["avatar_url"]),
-                  radius: 40.0,
-                )), 
-                Text("${json.decode(currentUserProfile)["name"]}")
+                Row(
+                  children: <Widget>[
+                    Expanded(
+                    flex: 1,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Container(
+                            child: new CircleAvatar(
+                          backgroundImage: new NetworkImage(
+                              json.decode(currentUserProfile)["avatar_url"]),
+                          radius: 40.0,
+                        )),
+                      ],
+                    )),
+                Expanded(
+                    flex: 2,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text("${json.decode(currentUserProfile)["name"]}",
+                            style: new TextStyle(color: Colors.white)),
+                        Text("${json.decode(currentUserProfile)["login"]}",
+                            style: new TextStyle(color: Colors.white)),
+                        Text("${json.decode(currentUserProfile)["bio"]}",
+                            style: new TextStyle(color: Colors.white)),
+                        Text("${json.decode(currentUserProfile)["company"]}",
+                            style: new TextStyle(color: Colors.white))
+                      ],
+                    ))
+                  ],
+                )
               ],
             ),
             decoration: BoxDecoration(
@@ -114,7 +139,7 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
     var stream = SharedPrefs().getCurrentUserProfile().asStream();
     subscriptionMyProfile = stream.listen((profile) {
       this.setState(() {
-        currentUserProfile = profile;       
+        currentUserProfile = profile;
       });
     });
   }
