@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:LoginUI/ui/base/BaseStatefulState.dart';
 import 'package:LoginUI/ui/dashboard/DashboardPage.dart';
 import 'package:LoginUI/ui/login/LoginPage.dart';
@@ -8,6 +11,25 @@ import 'package:flutter/material.dart';
 
 class DashboardPageState extends BaseStatefulState<DashboardPage> {
   Widget appBarTitle = new Text("Your Dashboard");
+  String currentUserProfile;
+  String accessToken;
+  StreamSubscription<String> subscriptionMyProfile;
+
+  @override
+  void initState() {
+    super.initState();
+    SharedPrefs().getToken().then((token) {
+      accessToken = token;
+      getMyUserProfile();
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    subscriptionMyProfile?.cancel();
+    
+  }
 
   toolbarAndroid() {
     return new AppBar(
@@ -26,7 +48,18 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
         padding: EdgeInsets.zero,
         children: <Widget>[
           DrawerHeader(
-            child: Text('Welcome!'),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Container(
+                    child: new CircleAvatar(
+                  backgroundImage: new NetworkImage(
+                      json.decode(currentUserProfile)["avatar_url"]),
+                  radius: 40.0,
+                )), 
+                Text("${json.decode(currentUserProfile)["name"]}")
+              ],
+            ),
             decoration: BoxDecoration(
               color: Colors.blue,
             ),
@@ -75,5 +108,14 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
         body: new Stack(
           children: <Widget>[toolbarAndroid()],
         ));
+  }
+
+  void getMyUserProfile() {
+    var stream = SharedPrefs().getCurrentUserProfile().asStream();
+    subscriptionMyProfile = stream.listen((profile) {
+      this.setState(() {
+        currentUserProfile = profile;       
+      });
+    });
   }
 }

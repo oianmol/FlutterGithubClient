@@ -264,7 +264,10 @@ class LoginPageState extends BaseStatefulState<LoginPage>
     var stream = Github.getMyUserProfile(token).asStream();
     StreamSubscription<Response> subscription = stream.listen((response) {
       this.setState(() {
-        print("Current User Profile: ${json.decode(response.body)}");
+        SharedPrefs().saveCurrentUserProfile(response.body);
+        final currentUser = json.decode(response.body);
+        print("Current User Profile: $currentUser");
+        
         // getUserResponse = json.decode(response.body);
         // users = getUserResponse['items'] as List;
         // print(users);

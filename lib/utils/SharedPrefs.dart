@@ -38,6 +38,6 @@ class SharedPrefs{
 
   Future<String> getCurrentUserProfile() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
-    return json.decode(pref.getString(_currenUserProfile));
+    return pref.getString(_currenUserProfile);
   }
 }
