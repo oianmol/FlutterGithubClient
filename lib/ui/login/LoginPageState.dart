@@ -8,6 +8,7 @@ import 'package:LoginUI/ui/login/LoginPage.dart';
 import 'package:LoginUI/utils/SharedPrefs.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:http/src/response.dart';
 import 'package:vector_math/vector_math_64.dart' as Vector;
 
 class LoginPageState extends BaseStatefulState<LoginPage>
@@ -242,9 +243,10 @@ class LoginPageState extends BaseStatefulState<LoginPage>
 
   loginNow() async {
     showProgress();
-    Github.authenticate((success) {
-      SharedPrefs().saveToken(success);
+    Github.authenticate((token) {
+      SharedPrefs().saveToken(token);
       hideProgress();
+      fetchCurrentUserProfile(token);
       fetchedAccessToken();
     });
   }
@@ -254,5 +256,21 @@ class LoginPageState extends BaseStatefulState<LoginPage>
       context,
       MaterialPageRoute(builder: (context) => DashboardPage()),
     );
+  }
+
+  void fetchCurrentUserProfile(String token) {
+    // Github.getMyUserProfile(token);
+
+    var stream = Github.getMyUserProfile(token).asStream();
+    StreamSubscription<Response> subscription = stream.listen((response) {
+      this.setState(() {
+        print("Current User Profile: ${json.decode(response.body)}");
+        // getUserResponse = json.decode(response.body);
+        // users = getUserResponse['items'] as List;
+        // print(users);
+        //print(getUserResponse);
+      });
+      hideProgress();
+    });
   }
 }

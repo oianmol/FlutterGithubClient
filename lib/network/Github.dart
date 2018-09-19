@@ -11,6 +11,7 @@ class Github {
   static String accessTokenURL = "https://github.com/login/oauth/access_token";
   static String authorizeBasicUrl = "https://api.github.com/authorizations";
   static String getUserGithub = "https://api.github.com/search/users";
+  static String getMyUserGithub = "https://api.github.com/user";
   static String getMyReposGithub = "https://api.github.com/user/repos";
 
   static String clientId =
@@ -134,6 +135,12 @@ class Github {
 
   static Future<http.Response> getUsersBySearch(String response, String value) {
     String fullUrl = getUserGithub + "?" + response + "&q=" + value;
+    print(fullUrl);
+    return http.get(fullUrl);
+  }
+
+  static Future<http.Response> getMyUserProfile(String accessToken){
+    String fullUrl = getMyUserGithub + "?" + accessToken;
     print(fullUrl);
     return http.get(fullUrl);
   }
