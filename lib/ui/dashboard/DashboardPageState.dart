@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:LoginUI/model/UserProfile.dart';
 import 'package:LoginUI/ui/base/BaseStatefulState.dart';
 import 'package:LoginUI/ui/dashboard/DashboardPage.dart';
+import 'package:LoginUI/ui/dashboard/DrawerHeaderLayout.dart';
 import 'package:LoginUI/ui/login/LoginPage.dart';
 import 'package:LoginUI/ui/repolist/RepoListPage.dart';
 import 'package:LoginUI/ui/searchusers/UserSearchPage.dart';
@@ -47,49 +48,7 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
         // Important: Remove any padding from the ListView.
         padding: EdgeInsets.zero,
         children: <Widget>[
-          DrawerHeader(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                Row(
-                  children: <Widget>[
-                    Expanded(
-                    flex: 1,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Container(
-                            child: new CircleAvatar(
-                          backgroundImage: new NetworkImage(
-                              currentUserProfile.avatarUrl),
-                          radius: 40.0,
-                        )),
-                      ],
-                    )),
-                Expanded(
-                    flex: 2,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Text("${currentUserProfile.name}",
-                            style: new TextStyle(color: Colors.white)),
-                        Text("${currentUserProfile.login}",
-                            style: new TextStyle(color: Colors.white)),
-                        Text("${currentUserProfile.bio}",
-                            style: new TextStyle(color: Colors.white)),
-                        Text("${currentUserProfile.company}",
-                            style: new TextStyle(color: Colors.white))
-                      ],
-                    ))
-                  ],
-                )
-              ],
-            ),
-            decoration: BoxDecoration(
-              color: Colors.blue,
-            ),
-          ),
+          new DrawerHeaderLayout(userProfile: currentUserProfile),
           ListTile(
             title: Text('User Search'),
             onTap: () {
