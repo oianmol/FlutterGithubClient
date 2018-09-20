@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:LoginUI/model/UserProfile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedPrefs{
@@ -36,8 +37,8 @@ class SharedPrefs{
     pref.setString(_currenUserProfile, userProfileJson);
   } 
 
-  Future<String> getCurrentUserProfile() async {
+  Future<UserProfile> getCurrentUserProfile() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
-    return pref.getString(_currenUserProfile);
+    return UserProfile.fromJson(json.decode(pref.getString(_currenUserProfile)));
   }
 }

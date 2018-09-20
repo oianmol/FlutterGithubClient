@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:LoginUI/model/UserProfile.dart';
 import 'package:LoginUI/ui/base/BaseStatefulState.dart';
 import 'package:LoginUI/ui/dashboard/DashboardPage.dart';
 import 'package:LoginUI/ui/login/LoginPage.dart';
@@ -11,9 +12,9 @@ import 'package:flutter/material.dart';
 
 class DashboardPageState extends BaseStatefulState<DashboardPage> {
   Widget appBarTitle = new Text("Your Dashboard");
-  String currentUserProfile;
+  UserProfile currentUserProfile;
   String accessToken;
-  StreamSubscription<String> subscriptionMyProfile;
+  StreamSubscription<UserProfile> subscriptionMyProfile;
 
   @override
   void initState() {
@@ -61,7 +62,7 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
                         Container(
                             child: new CircleAvatar(
                           backgroundImage: new NetworkImage(
-                              json.decode(currentUserProfile)["avatar_url"]),
+                              currentUserProfile.avatarUrl),
                           radius: 40.0,
                         )),
                       ],
@@ -71,13 +72,13 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        Text("${json.decode(currentUserProfile)["name"]}",
+                        Text("${currentUserProfile.name}",
                             style: new TextStyle(color: Colors.white)),
-                        Text("${json.decode(currentUserProfile)["login"]}",
+                        Text("${currentUserProfile.login}",
                             style: new TextStyle(color: Colors.white)),
-                        Text("${json.decode(currentUserProfile)["bio"]}",
+                        Text("${currentUserProfile.bio}",
                             style: new TextStyle(color: Colors.white)),
-                        Text("${json.decode(currentUserProfile)["company"]}",
+                        Text("${currentUserProfile.company}",
                             style: new TextStyle(color: Colors.white))
                       ],
                     ))
