@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:LoginUI/ui/login/LoginPage.dart';
 import 'package:LoginUI/network/Github.dart';
 import 'package:LoginUI/ui/base/BaseStatefulState.dart';
 import 'package:LoginUI/ui/dashboard/DashboardPage.dart';
-import 'package:LoginUI/ui/login/LoginPage.dart';
 import 'package:LoginUI/utils/SharedPrefs.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +12,7 @@ import 'package:vector_math/vector_math_64.dart' as Vector;
 
 class LoginPageState extends BaseStatefulState<LoginPage>
     with TickerProviderStateMixin {
-  final GlobalKey<EditableTextState> _emailState =
+  final GlobalKey<EditableTextState> _usernameState =
       new GlobalKey<EditableTextState>();
   final GlobalKey<EditableTextState> _passwordState =
       new GlobalKey<EditableTextState>();
@@ -25,8 +25,11 @@ class LoginPageState extends BaseStatefulState<LoginPage>
   bool animateLogo = false;
   bool formVisible = false;
 
-  String username = "";
-  String password = "";
+  String usernameText = "";
+  String passwordText = "";
+
+  final usernameTextController = TextEditingController();
+  final passwordTextController = TextEditingController();
 
   @override
   void initState() {
@@ -82,6 +85,13 @@ class LoginPageState extends BaseStatefulState<LoginPage>
         ));
   }
 
+  @override
+  void dispose() {
+    usernameTextController.dispose();
+    passwordTextController.dispose();
+    super.dispose();
+  }
+
   getEndOffset() {
     return Offset(0.0, 1.0);
   }
@@ -133,9 +143,8 @@ class LoginPageState extends BaseStatefulState<LoginPage>
         child: new Container(
           margin: const EdgeInsets.only(top: 20.0),
           child: new Column(children: <Widget>[
-            email(context),
+            username(context),
             passwordWidget(context),
-            forgotPassword(context),
             loginButton(context),
             loginOauthButton(context)
           ]),
@@ -149,13 +158,15 @@ class LoginPageState extends BaseStatefulState<LoginPage>
             color: Colors.white.withOpacity(0.1),
             borderRadius: BorderRadius.all(Radius.circular(4.0)))),
         alignment: Alignment.center,
-        child: new MaterialButton(
-            onPressed: loginNowBasic,
-            textColor: Colors.white,
-            child: new Text(
-              "Login",
-              style: TextStyle(fontSize: 20.0),
-            )));
+        child: new SizedBox(
+            width: double.infinity,
+            child: new MaterialButton(
+                onPressed: loginNowBasic,
+                textColor: Colors.white,
+                child: new Text(
+                  "Login",
+                  style: TextStyle(fontSize: 20.0),
+                ))));
   }
 
   loginOauthButton(BuildContext context) {
@@ -184,22 +195,22 @@ class LoginPageState extends BaseStatefulState<LoginPage>
             textAlign: TextAlign.start));
   }
 
-  email(BuildContext context) {
+  username(BuildContext context) {
     return new Container(
         margin: EdgeInsets.all(8.0),
         child: new TextFormField(
-          key: _emailState,
+          key: _usernameState,
           maxLines: 1,
+          controller: usernameTextController,
           textInputAction: TextInputAction.next,
           keyboardType: TextInputType.emailAddress,
           keyboardAppearance: Brightness.light,
           style: TextStyle(color: Colors.white, fontSize: 20.0),
           onFieldSubmitted: (String inputText) {
-            username = inputText;
             FocusScope.of(context).requestFocus(_focusNode);
           },
           decoration: InputDecoration(
-              hintText: 'Email',
+              hintText: 'Username',
               contentPadding: EdgeInsets.all(10.0),
               hintStyle: TextStyle(color: Colors.white.withOpacity(0.5))),
         ));
@@ -211,14 +222,12 @@ class LoginPageState extends BaseStatefulState<LoginPage>
           key: _passwordState,
           focusNode: _focusNode,
           maxLines: 1,
+          controller: passwordTextController,
           autocorrect: false,
           obscureText: true,
           keyboardType: TextInputType.text,
           textInputAction: TextInputAction.done,
           keyboardAppearance: Brightness.light,
-          onFieldSubmitted: (String passwordText) {
-            password = passwordText;
-          },
           style: TextStyle(color: Colors.white, fontSize: 20.0),
           decoration: InputDecoration(
               hintText: 'Password',
@@ -229,8 +238,23 @@ class LoginPageState extends BaseStatefulState<LoginPage>
   }
 
   loginNowBasic() async {
+    //hides keyboard.
+    FocusScope.of(context).requestFocus(FocusNode());
+
+    if (!isValidUsername(usernameTextController.text)) {
+      showErrorInvalidUsername();
+      return;
+    }
+
+    if (!isValidPassword(passwordTextController.text)) {
+      showErrorInvalidPassword();
+      return;
+    }
+
     showProgress();
-    Github.authenticateUsernamePassword(username, password).then((response) {
+    Github.authenticateUsernamePassword(
+            usernameTextController.text, passwordTextController.text)
+        .then((response) {
       print(response.body);
       var token = json.decode(response.body)['token'];
       print(token);
@@ -241,6 +265,9 @@ class LoginPageState extends BaseStatefulState<LoginPage>
   }
 
   loginNow() async {
+    //hides keyboard.
+    FocusScope.of(context).requestFocus(FocusNode());
+
     showProgress();
     Github.authenticate((success) {
       SharedPrefs().saveToken(success);
@@ -254,5 +281,53 @@ class LoginPageState extends BaseStatefulState<LoginPage>
       context,
       MaterialPageRoute(builder: (context) => DashboardPage()),
     );
+  }
+
+  void showProgressBar() {
+    scaffoldKey.currentState.showSnackBar(new SnackBar(
+      content: new Row(
+        children: <Widget>[
+          new Container(
+              child: new CircularProgressIndicator(),
+              margin: EdgeInsets.all(4.0)),
+          new Container(
+              child: new Text("Signing in..."), margin: EdgeInsets.all(4.0)),
+        ],
+      ),
+    ));
+  }
+
+  bool isValidUsername(String text) {
+    return text.trim().isNotEmpty;
+  }
+
+  bool isValidPassword(String text) {
+    return text.isNotEmpty;
+  }
+
+  void showErrorInvalidUsername() {
+    scaffoldKey.currentState.removeCurrentSnackBar();
+    scaffoldKey.currentState.showSnackBar(new SnackBar(
+      content: new Row(
+        children: <Widget>[
+          new Container(
+              child: new Text("Username cannot be blank/empty"),
+              margin: EdgeInsets.all(4.0)),
+        ],
+      ),
+    ));
+  }
+
+  void showErrorInvalidPassword() {
+    scaffoldKey.currentState.removeCurrentSnackBar();
+    scaffoldKey.currentState.showSnackBar(new SnackBar(
+      content: new Row(
+        children: <Widget>[
+          new Container(
+              child: new Text("Password cannot be blank/empty"),
+              margin: EdgeInsets.all(4.0)),
+        ],
+      ),
+    ));
   }
 }
