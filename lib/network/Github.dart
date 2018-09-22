@@ -13,6 +13,7 @@ class Github {
   static String getUserGithub = "https://api.github.com/search/users";
   static String getMyUserGithub = "https://api.github.com/user";
   static String getMyReposGithub = "https://api.github.com/user/repos";
+  static String getUsersReposGithub = "https://api.github.com/users/:username/repos";
 
   static String clientId =
       "client_id"; //Required. The client ID you received from GitHub when you registered.
@@ -151,6 +152,18 @@ class Github {
     print(fullUrl);
     return http.get(fullUrl);
   }
+
+
+  static Future<http.Response> getUserRepos(String accessToken,String userName) {
+    String fullUrl =
+        getUsersReposGithub.replaceAll(":username", userName) + "?" + accessToken + affiliationParamRepoSearch+"&"+"type=all";
+    print(fullUrl);
+    return http.get(fullUrl);
+  }
+
+
+
+
 
   static Future<http.Response> getFromUrl(String reposUrl, String accessToken) {
     String fullUrl = reposUrl + "?access_token=" + accessToken + affiliationParamRepoSearch;
