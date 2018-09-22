@@ -1,5 +1,10 @@
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:LoginUI/model/UserProfile.dart';
 import 'package:LoginUI/ui/base/BaseStatefulState.dart';
 import 'package:LoginUI/ui/dashboard/DashboardPage.dart';
+import 'package:LoginUI/ui/dashboard/DrawerHeaderLayout.dart';
 import 'package:LoginUI/ui/login/LoginPage.dart';
 import 'package:LoginUI/ui/repolist/RepoListPage.dart';
 import 'package:LoginUI/ui/searchusers/UserSearchPage.dart';
@@ -8,6 +13,24 @@ import 'package:flutter/material.dart';
 
 class DashboardPageState extends BaseStatefulState<DashboardPage> {
   Widget appBarTitle = new Text("Your Dashboard");
+  UserProfile currentUserProfile;
+  String accessToken;
+  StreamSubscription<UserProfile> subscriptionMyProfile;
+
+  @override
+  void initState() {
+    super.initState();
+    SharedPrefs().getToken().then((token) {
+      accessToken = token;
+      getMyUserProfile();
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    subscriptionMyProfile?.cancel();
+  }
 
   toolbarAndroid() {
     return new AppBar(
@@ -25,12 +48,7 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
         // Important: Remove any padding from the ListView.
         padding: EdgeInsets.zero,
         children: <Widget>[
-          DrawerHeader(
-            child: Text('Welcome!'),
-            decoration: BoxDecoration(
-              color: Colors.blue,
-            ),
-          ),
+          new DrawerHeaderLayout(userProfile: currentUserProfile),
           ListTile(
             title: Text('User Search'),
             onTap: () {
@@ -75,5 +93,14 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
         body: new Stack(
           children: <Widget>[toolbarAndroid()],
         ));
+  }
+
+  void getMyUserProfile() {
+    var stream = SharedPrefs().getCurrentUserProfile().asStream();
+    subscriptionMyProfile = stream.listen((profile) {
+      this.setState(() {
+        currentUserProfile = profile;
+      });
+    });
   }
 }

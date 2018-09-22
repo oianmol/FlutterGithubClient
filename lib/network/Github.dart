@@ -11,6 +11,7 @@ class Github {
   static String accessTokenURL = "https://github.com/login/oauth/access_token";
   static String authorizeBasicUrl = "https://api.github.com/authorizations";
   static String getUserGithub = "https://api.github.com/search/users";
+  static String getMyUserGithub = "https://api.github.com/user";
   static String getMyReposGithub = "https://api.github.com/user/repos";
   static String getUsersReposGithub = "https://api.github.com/users/:username/repos";
 
@@ -134,14 +135,20 @@ class Github {
   }
 
   static Future<http.Response> getUsersBySearch(String response, String value) {
-    String fullUrl = getUserGithub + "?" + response + "&q=" + value;
+    String fullUrl = getUserGithub + "?access_token" + response + "&q=" + value;
+    print(fullUrl);
+    return http.get(fullUrl);
+  }
+
+  static Future<http.Response> getMyUserProfile(String accessToken){
+    String fullUrl = getMyUserGithub + "?access_token=" + accessToken;
     print(fullUrl);
     return http.get(fullUrl);
   }
 
   static Future<http.Response> getAllMyRepos(String accessToken) {
     String fullUrl =
-        getMyReposGithub + "?" + accessToken + affiliationParamRepoSearch;
+        getMyReposGithub + "?access_token=" + accessToken + affiliationParamRepoSearch;
     print(fullUrl);
     return http.get(fullUrl);
   }
@@ -159,7 +166,7 @@ class Github {
 
 
   static Future<http.Response> getFromUrl(String reposUrl, String accessToken) {
-    String fullUrl = reposUrl + "?" + accessToken + affiliationParamRepoSearch;
+    String fullUrl = reposUrl + "?access_token=" + accessToken + affiliationParamRepoSearch;
     print(fullUrl);
     return http.get(fullUrl);
   }

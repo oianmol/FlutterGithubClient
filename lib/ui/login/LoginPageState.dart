@@ -8,6 +8,7 @@ import 'package:LoginUI/ui/dashboard/DashboardPage.dart';
 import 'package:LoginUI/utils/SharedPrefs.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:http/src/response.dart';
 import 'package:vector_math/vector_math_64.dart' as Vector;
 
 class LoginPageState extends BaseStatefulState<LoginPage>
@@ -260,7 +261,7 @@ class LoginPageState extends BaseStatefulState<LoginPage>
       print(token);
       SharedPrefs().saveToken("access_token=$token");
       hideProgress();
-      fetchedAccessToken();
+      fetchCurrentUserProfile(token);
     });
   }
 
@@ -269,9 +270,10 @@ class LoginPageState extends BaseStatefulState<LoginPage>
     FocusScope.of(context).requestFocus(FocusNode());
 
     showProgress();
-    Github.authenticate((success) {
-      SharedPrefs().saveToken(success);
+    Github.authenticate((token) {
+      SharedPrefs().saveToken(token);
       hideProgress();
+      fetchCurrentUserProfile(token);
       fetchedAccessToken();
     });
   }
@@ -282,6 +284,17 @@ class LoginPageState extends BaseStatefulState<LoginPage>
       MaterialPageRoute(builder: (context) => DashboardPage()),
     );
   }
+
+
+  void fetchCurrentUserProfile(String token) {
+    var stream = Github.getMyUserProfile(token).asStream();
+    StreamSubscription<Response> subscription = stream.listen((response) {
+      this.setState(() {
+        SharedPrefs().saveCurrentUserProfile(response.body);
+        fetchedAccessToken();
+      });
+      hideProgress();
+    });
 
   void showProgressBar() {
     scaffoldKey.currentState.showSnackBar(new SnackBar(
@@ -329,5 +342,6 @@ class LoginPageState extends BaseStatefulState<LoginPage>
         ],
       ),
     ));
+
   }
 }

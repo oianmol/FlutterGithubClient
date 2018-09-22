@@ -1,10 +1,14 @@
 import 'dart:async';
+import 'dart:convert';
+
+import 'package:LoginUI/model/UserProfile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedPrefs{
 
   static final SharedPrefs _instance = new SharedPrefs._internal();
   final String _token ="TOKEN";
+  final String _currenUserProfile ="CURRENT_USER_PROFILE";
 
 
   factory SharedPrefs(){
@@ -28,5 +32,13 @@ class SharedPrefs{
     return  pref.getString(_token);
   }
 
+  void saveCurrentUserProfile(String userProfileJson) async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    pref.setString(_currenUserProfile, userProfileJson);
+  } 
 
+  Future<UserProfile> getCurrentUserProfile() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    return UserProfile.fromJson(json.decode(pref.getString(_currenUserProfile)));
+  }
 }
