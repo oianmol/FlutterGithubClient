@@ -237,7 +237,7 @@ class LoginPageState extends BaseStatefulState<LoginPage>
       print(token);
       SharedPrefs().saveToken("access_token=$token");
       hideProgress();
-      fetchedAccessToken();
+      fetchCurrentUserProfile(token);
     });
   }
 
@@ -263,6 +263,7 @@ class LoginPageState extends BaseStatefulState<LoginPage>
     StreamSubscription<Response> subscription = stream.listen((response) {
       this.setState(() {
         SharedPrefs().saveCurrentUserProfile(response.body);
+        fetchedAccessToken();
       });
       hideProgress();
     });
