@@ -254,7 +254,7 @@ class LoginPageState extends BaseStatefulState<LoginPage>
 
     showProgress();
     Github.authenticateUsernamePassword(
-            usernameTextController.text, passwordTextController.text)
+        usernameTextController.text.trim(), passwordTextController.text.trim())
         .then((response) {
       print(response.body);
       var token = json.decode(response.body)['token'];
@@ -285,7 +285,6 @@ class LoginPageState extends BaseStatefulState<LoginPage>
     );
   }
 
-
   void fetchCurrentUserProfile(String token) {
     var stream = Github.getMyUserProfile(token).asStream();
     StreamSubscription<Response> subscription = stream.listen((response) {
@@ -295,6 +294,7 @@ class LoginPageState extends BaseStatefulState<LoginPage>
       });
       hideProgress();
     });
+  }
 
   void showProgressBar() {
     scaffoldKey.currentState.showSnackBar(new SnackBar(
@@ -342,6 +342,5 @@ class LoginPageState extends BaseStatefulState<LoginPage>
         ],
       ),
     ));
-
   }
 }

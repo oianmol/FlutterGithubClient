@@ -9,6 +9,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return new MaterialApp(
       title: 'Flutter Github Client',
+      debugShowCheckedModeBanner: false,
       theme: new ThemeData(
           // This is the theme of your application.
           //
