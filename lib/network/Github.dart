@@ -135,20 +135,20 @@ class Github {
   }
 
   static Future<http.Response> getUsersBySearch(String response, String value) {
-    String fullUrl = getUserGithub + "?access_token" + response + "&q=" + value;
+    String fullUrl = getUserGithub + "?" + response + "&q=" + value;
     print(fullUrl);
     return http.get(fullUrl);
   }
 
   static Future<http.Response> getMyUserProfile(String accessToken){
-    String fullUrl = getMyUserGithub + "?access_token=" + accessToken;
+    String fullUrl = getMyUserGithub + "?" + accessToken;
     print(fullUrl);
     return http.get(fullUrl);
   }
 
   static Future<http.Response> getAllMyRepos(String accessToken) {
     String fullUrl =
-        getMyReposGithub + "?access_token=" + accessToken + affiliationParamRepoSearch;
+        getMyReposGithub + "?" + accessToken + affiliationParamRepoSearch;
     print(fullUrl);
     return http.get(fullUrl);
   }

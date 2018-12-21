@@ -259,7 +259,7 @@ class LoginPageState extends BaseStatefulState<LoginPage>
       print(response.body);
       var token = json.decode(response.body)['token'];
       print(token);
-      SharedPrefs().saveToken("access_token=$token");
+      SharedPrefs().saveToken("$token");
       hideProgress();
       fetchCurrentUserProfile(token);
     });
