@@ -141,7 +141,7 @@ class Github {
   }
 
   static Future<http.Response> getMyUserProfile(String accessToken){
-    String fullUrl = getMyUserGithub + "?" + accessToken;
+    String fullUrl = getMyUserGithub + "?access_token=" + accessToken;
     print(fullUrl);
     return http.get(fullUrl);
   }
