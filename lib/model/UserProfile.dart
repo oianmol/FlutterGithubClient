@@ -82,7 +82,7 @@ class UserProfile {
     login = json['login'];
     id = json['id'];
     nodeId = json['node_id'];
-    avatarUrl = json['avatar_url'];
+    avatarUrl = json['avatar_url']?? "";
     gravatarId = json['gravatar_id'];
     url = json['url'];
     htmlUrl = json['html_url'];

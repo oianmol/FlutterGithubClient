@@ -259,7 +259,7 @@ class LoginPageState extends BaseStatefulState<LoginPage>
       print(response.body);
       var token = json.decode(response.body)['token'];
       print(token);
-      SharedPrefs().saveToken("access_token=$token");
+      SharedPrefs().saveToken("$token");
       hideProgress();
       fetchCurrentUserProfile(token);
     });
@@ -287,7 +287,7 @@ class LoginPageState extends BaseStatefulState<LoginPage>
 
   void fetchCurrentUserProfile(String token) {
     var stream = Github.getMyUserProfile(token).asStream();
-    StreamSubscription<Response> subscription = stream.listen((response) {
+    stream.listen((response) {
       this.setState(() {
         SharedPrefs().saveCurrentUserProfile(response.body);
         fetchedAccessToken();

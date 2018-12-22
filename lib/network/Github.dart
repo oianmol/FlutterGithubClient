@@ -130,12 +130,14 @@ class Github {
     HttpClientResponse response = await request.close();
     print(response.statusCode);
     String reply = await response.transform(utf8.decoder).join();
+    print(reply);
+    reply = reply.split("=")[1].split("&")[0];
     httpClient.close();
     return reply;
   }
 
   static Future<http.Response> getUsersBySearch(String response, String value) {
-    String fullUrl = getUserGithub + "?access_token" + response + "&q=" + value;
+    String fullUrl = getUserGithub + "?" + response + "&q=" + value;
     print(fullUrl);
     return http.get(fullUrl);
   }
@@ -148,7 +150,7 @@ class Github {
 
   static Future<http.Response> getAllMyRepos(String accessToken) {
     String fullUrl =
-        getMyReposGithub + "?access_token=" + accessToken + affiliationParamRepoSearch;
+        getMyReposGithub + "?" + accessToken + affiliationParamRepoSearch;
     print(fullUrl);
     return http.get(fullUrl);
   }
