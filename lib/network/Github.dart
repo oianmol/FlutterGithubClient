@@ -130,6 +130,8 @@ class Github {
     HttpClientResponse response = await request.close();
     print(response.statusCode);
     String reply = await response.transform(utf8.decoder).join();
+    print(reply);
+    reply = reply.split("=")[1].split("&")[0];
     httpClient.close();
     return reply;
   }

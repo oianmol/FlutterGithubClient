@@ -287,7 +287,7 @@ class LoginPageState extends BaseStatefulState<LoginPage>
 
   void fetchCurrentUserProfile(String token) {
     var stream = Github.getMyUserProfile(token).asStream();
-    StreamSubscription<Response> subscription = stream.listen((response) {
+    stream.listen((response) {
       this.setState(() {
         SharedPrefs().saveCurrentUserProfile(response.body);
         fetchedAccessToken();
