@@ -150,7 +150,7 @@ class Github {
 
   static Future<http.Response> getAllMyRepos(String accessToken) {
     String fullUrl =
-        getMyReposGithub + "?" + accessToken + affiliationParamRepoSearch;
+        getMyReposGithub + "?access_token=" + accessToken + affiliationParamRepoSearch;
     print(fullUrl);
     return http.get(fullUrl);
   }
