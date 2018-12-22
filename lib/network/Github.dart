@@ -7,6 +7,8 @@ import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 
 class Github {
+  static var USER = "{user}";
+
   static String authorizeURL = "https://github.com/login/oauth/authorize";
   static String accessTokenURL = "https://github.com/login/oauth/access_token";
   static String authorizeBasicUrl = "https://api.github.com/authorizations";
@@ -15,6 +17,7 @@ class Github {
   static String getMyReposGithub = "https://api.github.com/user/repos";
   static String getMyOrgsGithub = "https://api.github.com/user/orgs";
   static String getUsersReposGithub = "https://api.github.com/users/:username/repos";
+  static String getStarredReposGithub = "https://api.github.com/users/$USER/starred";
 
   static String clientId =
       "client_id"; //Required. The client ID you received from GitHub when you registered.
@@ -31,6 +34,7 @@ class Github {
 
   static String affiliationParamRepoSearch =
       "&visibility=all&affiliation=owner,collaborator,organization_member";
+
 
   static Future<http.Response> authorize(Map<String, String> requestData) {
     return http.get(authorizeURL, headers: requestData);
@@ -189,6 +193,14 @@ class Github {
     print(fullUrl);
     return http.get(fullUrl);
   }
+
+  //flutter: https://api.github.com/users/Anmol92verma/starred
+  static Future<http.Response> getUserStarredRepos(String username) {
+    String fullUrl = getStarredReposGithub.replaceAll(USER, username);
+    print(fullUrl);
+    return http.get(fullUrl);
+  }
+
 
   static Future<http.Response> authenticateUsernamePassword(
       String username, String password) async {
