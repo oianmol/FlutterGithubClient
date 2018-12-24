@@ -80,7 +80,7 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
 
   void logoutUser() {
     SharedPrefs().clear().then((onClear) {
-      navigateTo(Routes.login);
+      Application.router.navigateTo(context, Routes.login,clearStack: true);
     });
   }
 
