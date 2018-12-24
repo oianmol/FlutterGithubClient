@@ -39,6 +39,11 @@ class SharedPrefs{
 
   Future<UserProfile> getCurrentUserProfile() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
-    return UserProfile.fromJson(json.decode(pref.getString(_currenUserProfile)));
+    var userProfile = pref.getString(_currenUserProfile);
+    if(userProfile==null){
+      return null;
+    }else{
+      return UserProfile.fromJson(json.decode(userProfile));
+    }
   }
 }

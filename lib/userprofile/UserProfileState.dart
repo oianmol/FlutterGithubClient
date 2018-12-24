@@ -34,36 +34,44 @@ class UserProfileState extends BaseStatefulState<UserProfilePage> {
 
   @override
   Widget prepareWidget(BuildContext context) {
-    return new Scaffold(key: scaffoldKey, appBar: toolbarAndroid(),
-    body: new Column(  children: <Widget>[header(), listVIew()],
-    ),);
+    return new Scaffold(
+      key: scaffoldKey,
+      appBar: toolbarAndroid(),
+      body: new Column(
+        children: <Widget>[header(), listVIew()],
+      ),
+    );
   }
 
   toolbarAndroid() {
     return new AppBar(
       centerTitle: false,
-      title: new Text(user.login, textDirection: TextDirection.ltr,),
+      title: new Text(
+        user.login,
+        textDirection: TextDirection.ltr,
+      ),
     );
   }
-
 
   header() {
     return new Row(children: <Widget>[userImage(), bio()]);
   }
 
-
   bio() {
-    return new Expanded( child: new Container(
-      width: 300.0,
-      height: 160.0,
-      margin: const EdgeInsets.only(top: 30.0, left: 10.0,right: 20.0,bottom: 30.0),
-      decoration: new BoxDecoration(
-          border: new Border.all(color: Colors.indigo)),
-      child: new Text(getBioText()),
-    ),);
+    return new Expanded(
+      child: new Container(
+        width: 300.0,
+        height: 160.0,
+        margin: const EdgeInsets.only(
+            top: 30.0, left: 10.0, right: 20.0, bottom: 30.0),
+        decoration:
+            new BoxDecoration(border: new Border.all(color: Colors.indigo)),
+        child: new Text(getBioText()),
+      ),
+    );
   }
 
- String getBioText() {
+  String getBioText() {
     if (user.bio == null || user.bio.isEmpty) {
       return "No Description.";
     } else {
@@ -75,8 +83,8 @@ class UserProfileState extends BaseStatefulState<UserProfilePage> {
   * returns circular profile image of user
   */
   userImage() {
-    return
-      new Column(children: <Widget>[
+    return new Column(
+      children: <Widget>[
         new Container(
             width: 80.0,
             height: 80.0,
@@ -85,13 +93,14 @@ class UserProfileState extends BaseStatefulState<UserProfilePage> {
                 shape: BoxShape.circle,
                 image: new DecorationImage(
                     fit: BoxFit.fill,
-                    image: new NetworkImage(user.avatarUrl)
-                )
-            )), new Text(user.login, textDirection: TextDirection.ltr,)
-      ],);
+                    image: new NetworkImage(user.avatarUrl)))),
+        new Text(
+          user.login,
+          textDirection: TextDirection.ltr,
+        )
+      ],
+    );
   }
-
-
 
   listVIew() {
     return new Expanded(
@@ -127,15 +136,13 @@ class UserProfileState extends BaseStatefulState<UserProfilePage> {
             }));
   }
 
-
-
   getRepos() {
     hideProgress();
     if (subscriptionRepos != null) {
       subscriptionRepos.cancel();
     }
     showProgress();
-    var stream = Github.getUserRepos(accessToken,user.login).asStream();
+    var stream = Github.getUserRepos(accessToken, user.login).asStream();
     subscriptionRepos = stream.listen((response) {
       this.setState(() {
         print(response.body);
@@ -146,5 +153,4 @@ class UserProfileState extends BaseStatefulState<UserProfilePage> {
       hideProgress();
     });
   }
-
 }

@@ -1,26 +1,32 @@
-import 'package:LoginUI/ui/login/LoginPage.dart';
+import 'package:LoginUI/Routes.dart';
+import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
 
-void main() => runApp(new MyApp());
+void main() => runApp(new AppGithubClient());
 
-class MyApp extends StatelessWidget {
+class AppGithubClient extends StatelessWidget {
   // This widget is the root of your application.
+
+  AppGithubClient() {
+    final router = new Router();
+    Routes.configureRoutes(router);
+    Application.router = router;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return new MaterialApp(
+   var app = new MaterialApp(
       title: 'Flutter Github Client',
       debugShowCheckedModeBanner: false,
-      theme: new ThemeData(
-          // This is the theme of your application.
-          //
-          // Try running your application with "flutter run". You'll see the
-          // application has a blue toolbar. Then, without quitting the app, try
-          // changing the primarySwatch below to Colors.green and then invoke
-          // "hot reload" (press "r" in the console where you ran "flutter run",
-          // or press Run > Flutter Hot Reload in IntelliJ). Notice that the
-          // counter didn't reset back to zero; the application is not restarted.
-          ),
-      home: new LoginPage(),
+      theme: new ThemeData(),
+      onGenerateRoute: Application.router.generator,
     );
+   print("initial route = ${app.initialRoute}");
+   return app;
   }
+}
+
+
+class Application{
+  static Router router;
 }

@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:LoginUI/Routes.dart';
+import 'package:LoginUI/main.dart';
 import 'package:LoginUI/ui/login/LoginPage.dart';
 import 'package:LoginUI/network/Github.dart';
 import 'package:LoginUI/ui/base/BaseStatefulState.dart';
@@ -279,10 +281,7 @@ class LoginPageState extends BaseStatefulState<LoginPage>
   }
 
   void fetchedAccessToken() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => DashboardPage()),
-    );
+    Application.router.navigateTo(context, Routes.loginDashboard, clearStack: true);
   }
 
   void fetchCurrentUserProfile(String token) {
