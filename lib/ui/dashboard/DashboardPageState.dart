@@ -60,7 +60,7 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
           ListTile(
             title: Text('My Repo List'),
             onTap: () {
-              navigateTo(Routes.dashboardUserSearch);
+              navigateTo(Routes.dashboardRepoList);
             },
           ),
           ListTile(
