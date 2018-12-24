@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:LoginUI/Routes.dart';
 import 'package:LoginUI/main.dart';
 import 'package:LoginUI/model/UserProfile.dart';
+import 'package:LoginUI/network/Github.dart';
 import 'package:LoginUI/ui/base/BaseStatefulState.dart';
 import 'package:LoginUI/ui/dashboard/DashboardPage.dart';
 import 'package:LoginUI/ui/dashboard/DrawerHeaderLayout.dart';
@@ -12,12 +13,14 @@ import 'package:LoginUI/ui/repolist/RepoListPage.dart';
 import 'package:LoginUI/ui/searchusers/UserSearchPage.dart';
 import 'package:LoginUI/utils/SharedPrefs.dart';
 import 'package:flutter/material.dart';
+import 'package:http/src/response.dart';
 
 class DashboardPageState extends BaseStatefulState<DashboardPage> {
   Widget appBarTitle = new Text("Your Dashboard");
   UserProfile currentUserProfile;
   String accessToken;
   StreamSubscription<UserProfile> subscriptionMyProfile;
+  StreamSubscription<Response> subScriptionApiUserProfile;
 
   @override
   void initState() {
@@ -32,6 +35,7 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
   void dispose() {
     super.dispose();
     subscriptionMyProfile?.cancel();
+    subScriptionApiUserProfile?.cancel();
   }
 
   toolbarAndroid() {
@@ -95,11 +99,28 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
   }
 
   void getMyUserProfile() {
+
     var stream = SharedPrefs().getCurrentUserProfile().asStream();
     subscriptionMyProfile = stream.listen((profile) {
+      if (profile != null) {
+        this.setState(() {
+          currentUserProfile = profile;
+        });
+      }else{
+        getApiUserProfile();
+      }
+    });
+  }
+
+  void getApiUserProfile() {
+    showProgress();
+    var getUserProfile =  Github.getMyUserProfile(accessToken).asStream();
+   subScriptionApiUserProfile = getUserProfile.listen((response){
       this.setState(() {
-        currentUserProfile = profile;
+        SharedPrefs().saveCurrentUserProfile(response.body);
+        getMyUserProfile();
       });
+      hideProgress();
     });
   }
 }
