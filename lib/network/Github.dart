@@ -7,13 +7,17 @@ import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 
 class Github {
+  static var USER = "{user}";
+
   static String authorizeURL = "https://github.com/login/oauth/authorize";
   static String accessTokenURL = "https://github.com/login/oauth/access_token";
   static String authorizeBasicUrl = "https://api.github.com/authorizations";
   static String getUserGithub = "https://api.github.com/search/users";
   static String getMyUserGithub = "https://api.github.com/user";
   static String getMyReposGithub = "https://api.github.com/user/repos";
+  static String getMyOrgsGithub = "https://api.github.com/user/orgs";
   static String getUsersReposGithub = "https://api.github.com/users/:username/repos";
+  static String getStarredReposGithub = "https://api.github.com/users/$USER/starred";
 
   static String clientId =
       "client_id"; //Required. The client ID you received from GitHub when you registered.
@@ -30,6 +34,7 @@ class Github {
 
   static String affiliationParamRepoSearch =
       "&visibility=all&affiliation=owner,collaborator,organization_member";
+
 
   static Future<http.Response> authorize(Map<String, String> requestData) {
     return http.get(authorizeURL, headers: requestData);
@@ -164,14 +169,38 @@ class Github {
   }
 
 
-
-
-
   static Future<http.Response> getFromUrl(String reposUrl, String accessToken) {
     String fullUrl = reposUrl + "?access_token=" + accessToken + affiliationParamRepoSearch;
     print(fullUrl);
     return http.get(fullUrl);
   }
+
+  /**
+   * flutter: [{"login":"mutualmobile","id":166419,
+   * "node_id":"MDEyOk9yZ2FuaXphdGlvbjE2NjQxOQ==",
+   * "url":"https://api.github.com/orgs/mutualmobile",
+   * "repos_url":"https://api.github.com/orgs/mutualmobile/repos",
+   * "events_url":"https://api.github.com/orgs/mutualmobile/events",
+   * "hooks_url":"https://api.github.com/orgs/mutualmobile/hooks",
+   * "issues_url":"https://api.github.com/orgs/mutualmobile/issues",
+   * "members_url":"https://api.github.com/orgs/mutualmobile/members{/member}",
+   * "public_members_url":"https://api.github.com/orgs/mutualmobile/public_members{/member}",
+   * "avatar_url":"https://avatars3.githubusercontent.com/u/166419?v=4",
+   * "description":"We build breakthrough products in partnership with the world's leading companies."}]
+   */
+  static Future<http.Response> getMyOrganizations(String accessToken) {
+    String fullUrl = getMyOrgsGithub + "?access_token=" + accessToken + affiliationParamRepoSearch;
+    print(fullUrl);
+    return http.get(fullUrl);
+  }
+
+  //flutter: https://api.github.com/users/Anmol92verma/starred
+  static Future<http.Response> getUserStarredRepos(String username) {
+    String fullUrl = getStarredReposGithub.replaceAll(USER, username);
+    print(fullUrl);
+    return http.get(fullUrl);
+  }
+
 
   static Future<http.Response> authenticateUsernamePassword(
       String username, String password) async {
