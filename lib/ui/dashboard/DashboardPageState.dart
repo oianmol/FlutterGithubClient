@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:LoginUI/Routes.dart';
+import 'package:LoginUI/main.dart';
 import 'package:LoginUI/model/UserProfile.dart';
 import 'package:LoginUI/ui/base/BaseStatefulState.dart';
 import 'package:LoginUI/ui/dashboard/DashboardPage.dart';
@@ -52,13 +54,13 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
           ListTile(
             title: Text('User Search'),
             onTap: () {
-              navigateTo(UserSearchPage());
+              navigateTo(Routes.dashboardUserSearch);
             },
           ),
           ListTile(
             title: Text('My Repo List'),
             onTap: () {
-              navigateTo(RepoListPage());
+              navigateTo(Routes.dashboardUserSearch);
             },
           ),
           ListTile(
@@ -72,16 +74,13 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
     );
   }
 
-  void navigateTo(StatefulWidget statefulWidget) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => statefulWidget),
-    );
+  void navigateTo(String  name) {
+    Application.router.navigateTo(context, name);
   }
 
   void logoutUser() {
     SharedPrefs().clear().then((onClear) {
-      navigateTo(LoginPage());
+      navigateTo(Routes.login);
     });
   }
 
