@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:LoginUI/Routes.dart';
 import 'package:LoginUI/main.dart';
@@ -8,15 +7,11 @@ import 'package:LoginUI/network/Github.dart';
 import 'package:LoginUI/ui/base/BaseStatefulState.dart';
 import 'package:LoginUI/ui/dashboard/DashboardPage.dart';
 import 'package:LoginUI/ui/dashboard/DrawerHeaderLayout.dart';
-import 'package:LoginUI/ui/login/LoginPage.dart';
-import 'package:LoginUI/ui/repolist/RepoListPage.dart';
-import 'package:LoginUI/ui/searchusers/UserSearchPage.dart';
 import 'package:LoginUI/utils/SharedPrefs.dart';
 import 'package:flutter/material.dart';
 import 'package:http/src/response.dart';
 
 class DashboardPageState extends BaseStatefulState<DashboardPage> {
-  Widget appBarTitle = new Text("Your Dashboard");
   UserProfile currentUserProfile;
   String accessToken;
   StreamSubscription<UserProfile> subscriptionMyProfile;
@@ -39,9 +34,15 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
   }
 
   toolbarAndroid() {
+    var userDashboardTitle;
+    if (currentUserProfile != null) {
+      userDashboardTitle = "${currentUserProfile.name}'s Dashboard";
+    } else {
+      userDashboardTitle = "Dashboard";
+    }
     return new AppBar(
       centerTitle: false,
-      title: appBarTitle,
+      title: new Text(userDashboardTitle),
     );
   }
 
@@ -78,13 +79,13 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
     );
   }
 
-  void navigateTo(String  name) {
+  void navigateTo(String name) {
     Application.router.navigateTo(context, name);
   }
 
   void logoutUser() {
     SharedPrefs().clear().then((onClear) {
-      Application.router.navigateTo(context, Routes.login,clearStack: true);
+      Application.router.navigateTo(context, Routes.login, clearStack: true);
     });
   }
 
@@ -99,14 +100,13 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
   }
 
   void getMyUserProfile() {
-
     var stream = SharedPrefs().getCurrentUserProfile().asStream();
     subscriptionMyProfile = stream.listen((profile) {
       if (profile != null) {
         this.setState(() {
           currentUserProfile = profile;
         });
-      }else{
+      } else {
         getApiUserProfile();
       }
     });
@@ -114,10 +114,10 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
 
   void getApiUserProfile() {
     showProgress();
-    var getUserProfile =  Github.getMyUserProfile(accessToken).asStream();
-   subScriptionApiUserProfile = getUserProfile.listen((response){
+    var getUserProfile = Github.getMyUserProfile(accessToken).asStream();
+    subScriptionApiUserProfile = getUserProfile.listen((response) {
+      SharedPrefs().saveCurrentUserProfile(response.body);
       this.setState(() {
-        SharedPrefs().saveCurrentUserProfile(response.body);
         getMyUserProfile();
       });
       hideProgress();
