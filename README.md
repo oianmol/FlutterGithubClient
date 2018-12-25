@@ -10,7 +10,7 @@ https://developer.github.com/apps/building-oauth-apps/authorizing-oauth-apps/
 ![First](art/IMG_0050.png)
 ![First](art/IMG_0042.PNG)
 ![First](art/IMG_0044.PNG)
-![First](art/IMG_0045.png)
+![First](art/IMG_0045.PNG)
 ![First](art/IMG_0046.PNG)
 ![First](art/IMG_0047.PNG)
 ![First](art/IMG_0049.PNG)
