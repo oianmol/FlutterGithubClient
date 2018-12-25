@@ -41,7 +41,7 @@ class UserProfileState extends BaseStatefulState<UserProfilePage> {
   Widget prepareWidget(BuildContext context) {
     var uiElements = <Widget>[toolbarAndroid()];
     uiElements.add(header());
-    uiElements.addAll(repoListProvider.reposList(repos,"Repositories"));
+    uiElements.add(new Expanded(child: repoListProvider.getReposList(repos,false)));
 
     return new Scaffold(
       key: scaffoldKey,

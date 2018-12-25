@@ -73,18 +73,21 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
           ListTile(
             title: Text('User Search'),
             onTap: () {
+              Navigator.pop(context);
               navigateTo(Routes.dashboardUserSearch);
             },
           ),
           ListTile(
             title: Text('My Repo List'),
             onTap: () {
+              Navigator.pop(context);
               navigateTo(Routes.dashboardRepoList);
             },
           ),
           ListTile(
             title: Text('Logout!'),
             onTap: () {
+              Navigator.pop(context);
               logoutUser();
             },
           )

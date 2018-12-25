@@ -15,38 +15,7 @@ class RepoListProvider {
       new Text(title, style: new TextStyle(fontStyle: FontStyle.italic,fontSize: 18),
           textAlign: TextAlign.start),
         padding: EdgeInsets.only(left: 15,top: 15),alignment: Alignment.centerLeft),
-      new ListView.builder(
-          padding: new EdgeInsets.all(8.0),
-          itemCount: repos == null ? 0 : repos.length,
-          shrinkWrap: true,
-          physics: ClampingScrollPhysics(),
-          itemBuilder: (BuildContext context, int index) {
-            return new Container(
-              alignment: Alignment.centerLeft,
-              margin: EdgeInsets.only(top: 5.0, left: 5.0, right: 5.0),
-              child: new Column(children: <Widget>[
-                new Container(
-                  alignment: Alignment.centerLeft,
-                  margin: EdgeInsets.only(top: 5.0, left: 5.0),
-                  child: new Text('${repos[index]['name']}',
-                      style: TextStyle(
-                          fontStyle: FontStyle.normal,
-                          fontSize: 18.0,
-                          color: Colors.green)),
-                ),
-                new Container(
-                  alignment: Alignment.centerLeft,
-                  margin: EdgeInsets.only(top: 5.0, left: 5.0),
-                  child: new Text(
-                      'Repo Type: ${(repos[index]['private'] as bool) ? "Private" : "Public"}',
-                      style: TextStyle(
-                          fontStyle: FontStyle.italic,
-                          fontSize: 14.0,
-                          color: Colors.blueGrey)),
-                )
-              ]),
-            );
-          })];
+      getReposList(repos, false)];
   }
 
   StreamSubscription getMyRepos(String accessToken, Function func) {
@@ -75,5 +44,40 @@ class RepoListProvider {
       print(repos);
       func(repos);
     });
+  }
+
+  getReposList(List repos, bool notScrollable) {
+    return new ListView.builder(
+        padding: new EdgeInsets.all(8.0),
+        itemCount: repos == null ? 0 : repos.length,
+        shrinkWrap: true,
+        physics: notScrollable? ClampingScrollPhysics() : AlwaysScrollableScrollPhysics(),
+        itemBuilder: (BuildContext context, int index) {
+          return new Container(
+            alignment: Alignment.centerLeft,
+            margin: EdgeInsets.only(top: 5.0, left: 5.0, right: 5.0),
+            child: new Column(children: <Widget>[
+              new Container(
+                alignment: Alignment.centerLeft,
+                margin: EdgeInsets.only(top: 5.0, left: 5.0),
+                child: new Text('${repos[index]['name']}',
+                    style: TextStyle(
+                        fontStyle: FontStyle.normal,
+                        fontSize: 18.0,
+                        color: Colors.green)),
+              ),
+              new Container(
+                alignment: Alignment.centerLeft,
+                margin: EdgeInsets.only(top: 5.0, left: 5.0),
+                child: new Text(
+                    'Repo Type: ${(repos[index]['private'] as bool) ? "Private" : "Public"}',
+                    style: TextStyle(
+                        fontStyle: FontStyle.italic,
+                        fontSize: 14.0,
+                        color: Colors.blueGrey)),
+              )
+            ]),
+          );
+        });
   }
 }

@@ -31,9 +31,9 @@ class RepoListPageState extends BaseStatefulState<RepoListPage>
 
   @override
   Widget prepareWidget(BuildContext context) {
-    var uiElements = <Widget>[toolbarAndroid()];
+    var uiElements = <Widget>[];
     uiElements.add(toolbarAndroid());
-    uiElements.addAll(repoListProvider.reposList(repos,"My Repositories"));
+    uiElements.add(new Expanded(child: repoListProvider.getReposList(repos,false)));
 
     return new Scaffold(
         key: scaffoldKey,
