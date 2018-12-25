@@ -23,12 +23,27 @@ class UserSearchPageState extends BaseStatefulState<UserSearchPage>
 
   String accessToken;
 
+  ScrollController scrollController;
+
+  var page = 1;
+
   @override
   void initState() {
     super.initState();
+    scrollController = new ScrollController();
+    scrollController.addListener(_scrollListener);
     SharedPrefs().getToken().then((token) {
       accessToken = token;
     });
+  }
+
+  @override
+  void dispose() {
+    if (subscription != null) {
+      subscription.cancel();
+    }
+    scrollController.removeListener(_scrollListener);
+    super.dispose();
   }
 
   @override
@@ -49,14 +64,18 @@ class UserSearchPageState extends BaseStatefulState<UserSearchPage>
   listVIew() {
     return new Expanded(
         child: new ListView.builder(
+            controller: scrollController,
             padding: new EdgeInsets.all(8.0),
             itemCount: users == null ? 0 : users.length,
             itemBuilder: (BuildContext context, int index) {
               return new GestureDetector(
                 child: new Row(
                   children: <Widget>[
-                    new Container(child: new Image.network(users[index].avatarUrl,
-                        width: 50.0, height: 50.0),padding: EdgeInsets.all(10),),
+                    new Container(
+                      child: new Image.network(users[index].avatarUrl,
+                          width: 50.0, height: 50.0),
+                      padding: EdgeInsets.all(10),
+                    ),
                     new Container(
                         margin: EdgeInsets.all(10),
                         child: new Text('${users[index].login}'))
@@ -91,13 +110,18 @@ class UserSearchPageState extends BaseStatefulState<UserSearchPage>
       subscription.cancel();
     }
     showProgress();
-    var stream = Github.getUsersBySearch(accessToken, string).asStream();
+    var stream = Github.getUsersBySearch(accessToken, string, page).asStream();
     subscription = stream.listen((response) {
       print("Response " + response.body);
       var parsedData = json.decode(response.body);
       if (parsedData['message'].toString() != "Validation Failed") {
         setState(() {
-          users = parseUsers(response.body);
+          if (users == null) {
+            users = parseUsers(response.body);
+          } else {
+            users.addAll(parseUsers(response.body));
+          }
+          page = page + 1;
         });
       }
       hideProgress();
@@ -124,6 +148,13 @@ class UserSearchPageState extends BaseStatefulState<UserSearchPage>
         this.appBarTitle = new Text("Search Github Users...");
       }
     });
+  }
+
+  void _scrollListener() {
+    print(scrollController.position.extentAfter);
+    if (scrollController.position.extentAfter < 500) {
+      setState(() {});
+    }
   }
 }
 

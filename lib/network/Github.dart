@@ -141,8 +141,8 @@ class Github {
     return reply;
   }
 
-  static Future<http.Response> getUsersBySearch(String response, String value) {
-    String fullUrl = getUserGithub + "?" + response + "&q=" + value + getClientIdSecret();
+  static Future<http.Response> getUsersBySearch(String accessToken, String value, int page) {
+    String fullUrl = getUserGithub + "?access_token=" + accessToken + "&q=" + value+"&page=$page&per_page=10" + getClientIdSecret();
     print(fullUrl);
     return http.get(fullUrl);
   }
