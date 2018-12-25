@@ -77,6 +77,7 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
               navigateTo(Routes.dashboardUserSearch);
             },
           ),
+          new Divider(color: Colors.grey,),
           ListTile(
             title: Text('My Repo List'),
             onTap: () {
@@ -84,13 +85,15 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
               navigateTo(Routes.dashboardRepoList);
             },
           ),
+          new Divider(color: Colors.grey,),
           ListTile(
             title: Text('Logout!'),
             onTap: () {
               Navigator.pop(context);
               logoutUser();
             },
-          )
+          ),
+          new Divider(color: Colors.grey,)
         ],
       ),
     );
@@ -108,15 +111,15 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
 
   @override
   Widget prepareWidget(BuildContext context) {
-    var uiElements = <Widget>[];
-    uiElements.add(new Container(height: kToolbarHeight + 20,));
+    var uiElements = <Widget>[toolbarAndroid()];
     uiElements.add(getCardMyView(starredRepos,"Starred Repos"));
     uiElements.add(getCardMyView(myRepos,"Repositories"));
 
     return new Scaffold(
         key: scaffoldKey,
+        backgroundColor: Colors.blue,
         drawer: getDrawer(),
-        body: new Stack(children: <Widget>[toolbarAndroid(),new CustomScrollView(
+        body: new CustomScrollView(
           slivers: [
             new SliverList(
               delegate: new SliverChildListDelegate(
@@ -124,7 +127,7 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
               ),
             ),
           ],
-        )],));
+        ));
   }
 
   void getMyUserProfile() {
