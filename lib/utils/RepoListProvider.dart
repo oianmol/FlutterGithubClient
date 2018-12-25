@@ -6,16 +6,18 @@ import 'package:flutter/material.dart';
 import 'package:http/src/response.dart';
 
 class RepoListProvider {
-
   RepoListProvider() {}
 
   List<Widget> reposList(List<dynamic> repos, String title) {
     return [
-      new Container(child:
-      new Text(title, style: new TextStyle(fontStyle: FontStyle.italic,fontSize: 18),
-          textAlign: TextAlign.start),
-        padding: EdgeInsets.only(left: 15,top: 15),alignment: Alignment.centerLeft),
-      getReposList(repos, false)];
+      new Container(
+          child: new Text(title,
+              style: new TextStyle(fontStyle: FontStyle.italic, fontSize: 18),
+              textAlign: TextAlign.start),
+          padding: EdgeInsets.only(left: 15, top: 15),
+          alignment: Alignment.centerLeft),
+      getReposList(repos, true)
+    ];
   }
 
   StreamSubscription getMyRepos(String accessToken, Function func) {
@@ -51,33 +53,48 @@ class RepoListProvider {
         padding: new EdgeInsets.all(8.0),
         itemCount: repos == null ? 0 : repos.length,
         shrinkWrap: true,
-        physics: notScrollable? ClampingScrollPhysics() : AlwaysScrollableScrollPhysics(),
+        physics: notScrollable
+            ? ClampingScrollPhysics()
+            : AlwaysScrollableScrollPhysics(),
         itemBuilder: (BuildContext context, int index) {
-          return new Container(
-            alignment: Alignment.centerLeft,
-            margin: EdgeInsets.only(top: 5.0, left: 5.0, right: 5.0),
-            child: new Column(children: <Widget>[
+          return new Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
               new Container(
-                alignment: Alignment.centerLeft,
-                margin: EdgeInsets.only(top: 5.0, left: 5.0),
-                child: new Text('${repos[index]['name']}',
-                    style: TextStyle(
-                        fontStyle: FontStyle.normal,
-                        fontSize: 18.0,
-                        color: Colors.black)),
+                child: new Image.network(
+                    '${repos[index]['owner']['avatar_url']}',
+                    width: 40.0,
+                    height: 40.0),
+                padding: EdgeInsets.all(10),
               ),
-              new Container(
-                alignment: Alignment.centerLeft,
-                margin: EdgeInsets.only(top: 5.0, left: 5.0),
-                child: new Text(
-                    'Repo Type: ${(repos[index]['private'] as bool) ? "Private" : "Public"}',
-                    style: TextStyle(
-                        fontStyle: FontStyle.italic,
-                        fontSize: 14.0,
-                        color: Colors.black87)),
-              )
-            ]),
+              getDetailView(repos[index])
+            ],
           );
         });
+  }
+
+  getDetailView(repo) {
+    return new Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          new Text(
+            '${repo['name']}',
+            style: TextStyle(
+                fontStyle: FontStyle.normal,
+                fontSize: 16.0,
+                color: Colors.black),
+            textAlign: TextAlign.start,
+            overflow: TextOverflow.ellipsis,
+          ),
+          new Text(
+              'Repo Type: ${(repo['private'] as bool) ? "Private" : "Public"}',
+              style: TextStyle(
+                  fontStyle: FontStyle.italic,
+                  fontSize: 14.0,
+                  color: Colors.black87),
+              textAlign: TextAlign.start,
+              overflow: TextOverflow.ellipsis)
+        ]);
   }
 }
