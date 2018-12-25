@@ -142,7 +142,7 @@ class Github {
   }
 
   static Future<http.Response> getUsersBySearch(String response, String value) {
-    String fullUrl = getUserGithub + "?" + response + "&q=" + value;
+    String fullUrl = getUserGithub + "?" + response + "&q=" + value + getClientIdSecret();
     print(fullUrl);
     return http.get(fullUrl);
   }
@@ -223,5 +223,9 @@ class Github {
     print(map);
     return http.post(authorizeBasicUrl,
         headers: {'Authorization': authrorization}, body: json.encode(map));
+  }
+
+  static String getClientIdSecret() {
+    return "&${Github.clientId}=${AppConstants.GITHUB_CLIENT_ID}&${Github.clientSecret}=${AppConstants.GITHUB_CLIENT_SECRET}";
   }
 }
