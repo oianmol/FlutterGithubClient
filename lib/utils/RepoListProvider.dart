@@ -64,7 +64,7 @@ class RepoListProvider {
                     style: TextStyle(
                         fontStyle: FontStyle.normal,
                         fontSize: 18.0,
-                        color: Colors.green)),
+                        color: Colors.black)),
               ),
               new Container(
                 alignment: Alignment.centerLeft,
@@ -74,7 +74,7 @@ class RepoListProvider {
                     style: TextStyle(
                         fontStyle: FontStyle.italic,
                         fontSize: 14.0,
-                        color: Colors.blueGrey)),
+                        color: Colors.black87)),
               )
             ]),
           );

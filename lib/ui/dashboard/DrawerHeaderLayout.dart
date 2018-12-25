@@ -14,7 +14,7 @@ class DrawerHeaderLayout extends StatelessWidget {
         children: <Widget>[userImageWidget(), userDetailsWidget()],
       ),
       decoration: BoxDecoration(
-        color: Colors.blue,
+        color: Colors.black87,
       ),
     );
   }

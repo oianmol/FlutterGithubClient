@@ -77,6 +77,7 @@ class UserSearchPageState extends BaseStatefulState<UserSearchPage>
   toolbarAndroid() {
     return new AppBar(
       centerTitle: false,
+      backgroundColor: Colors.black,
       title: appBarTitle,
       actions: <Widget>[
         new IconButton(icon: actionIcon, onPressed: () => onClickToolbar())

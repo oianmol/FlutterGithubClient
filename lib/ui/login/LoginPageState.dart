@@ -108,14 +108,14 @@ class LoginPageState extends BaseStatefulState<LoginPage>
         opacity: splashVisible ? 1.0 : 0.0,
         duration: new Duration(seconds: 2),
         child: new Container(
-            color: Colors.blue,
+            color: Colors.black,
             height: double.infinity,
             width: double.infinity));
   }
 
   blurMask(BuildContext context) {
     return new Container(
-        color: Colors.blueGrey,
+        color: Colors.black87,
         height: double.infinity,
         width: double.infinity);
   }

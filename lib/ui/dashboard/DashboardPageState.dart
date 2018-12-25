@@ -55,6 +55,7 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
     }
     return new AppBar(
       key: toolbar,
+      backgroundColor: Colors.black,
       centerTitle: false,
       title: new Text(userDashboardTitle),
     );
@@ -117,7 +118,7 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
 
     return new Scaffold(
         key: scaffoldKey,
-        backgroundColor: Colors.blue,
+        backgroundColor: Colors.black87,
         drawer: getDrawer(),
         body: new CustomScrollView(
           slivers: [

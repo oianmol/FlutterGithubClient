@@ -44,6 +44,7 @@ class RepoListPageState extends BaseStatefulState<RepoListPage>
 
   toolbarAndroid() {
     return new AppBar(
+      backgroundColor: Colors.black,
       centerTitle: false,
       title: appBarTitle,
     );

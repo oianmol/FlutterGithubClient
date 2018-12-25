@@ -56,6 +56,7 @@ class UserProfileState extends BaseStatefulState<UserProfilePage> {
   toolbarAndroid() {
     return new AppBar(
       centerTitle: false,
+      backgroundColor: Colors.black,
       title: new Text(
         user.login,
         textDirection: TextDirection.ltr,
