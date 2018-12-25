@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:LoginUI/model/UserProfile.dart';
 import 'package:LoginUI/network/Github.dart';
 import 'package:LoginUI/ui/base/BaseStatefulState.dart';
-import 'package:LoginUI/ui/data/User.dart';
 import 'package:LoginUI/ui/searchusers/UserSearchPage.dart';
 import 'package:LoginUI/userprofile/UserProfilePage.dart';
 import 'package:LoginUI/utils/SharedPrefs.dart';
@@ -15,7 +15,7 @@ class UserSearchPageState extends BaseStatefulState<UserSearchPage>
   double USER_IMAGE_SIZE = 200.0;
 
   dynamic getUserResponse;
-  List<User> users;
+  List<UserProfile> users;
   Icon actionIcon = new Icon(Icons.search);
   Widget appBarTitle = new Text("Search Github Users...");
 
@@ -55,10 +55,10 @@ class UserSearchPageState extends BaseStatefulState<UserSearchPage>
               return new GestureDetector(
                 child: new Row(
                   children: <Widget>[
-                    new Image.network(users[index].avatarUrl,
-                        width: 50.0, height: 50.0),
+                    new Container(child: new Image.network(users[index].avatarUrl,
+                        width: 50.0, height: 50.0),padding: EdgeInsets.all(10),),
                     new Container(
-                        margin: EdgeInsets.only(left: 8.0),
+                        margin: EdgeInsets.all(10),
                         child: new Text('${users[index].login}'))
                   ],
                 ),
@@ -67,7 +67,7 @@ class UserSearchPageState extends BaseStatefulState<UserSearchPage>
             }));
   }
 
-  moveToUserScreen(User user) {
+  moveToUserScreen(UserProfile user) {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => UserProfilePage(user)),
@@ -127,7 +127,13 @@ class UserSearchPageState extends BaseStatefulState<UserSearchPage>
 }
 
 // A function that will convert a response body into a List<User>
-List<User> parseUsers(String responseBody) {
+List<UserProfile> parseUsers(String responseBody) {
   var parsedData = json.decode(responseBody);
-  return new UserList.fromJson(parsedData['items'] as List).users;
+  var users = parsedData['items'] as List<dynamic>;
+  var userProfiles = new List<UserProfile>();
+  users.forEach((object) {
+    print(object);
+    userProfiles.add(UserProfile.fromJson(object));
+  });
+  return userProfiles;
 }
