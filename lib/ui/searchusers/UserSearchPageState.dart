@@ -27,6 +27,8 @@ class UserSearchPageState extends BaseStatefulState<UserSearchPage>
 
   var page = 1;
 
+  String searchString;
+
   @override
   void initState() {
     super.initState();
@@ -105,6 +107,7 @@ class UserSearchPageState extends BaseStatefulState<UserSearchPage>
   }
 
   searchUser(String string) {
+    this.searchString = string;
     hideProgress();
     if (subscription != null) {
       subscription.cancel();
@@ -125,6 +128,7 @@ class UserSearchPageState extends BaseStatefulState<UserSearchPage>
         });
       }
       hideProgress();
+      subscription = null;
     });
   }
 
@@ -152,8 +156,10 @@ class UserSearchPageState extends BaseStatefulState<UserSearchPage>
 
   void _scrollListener() {
     print(scrollController.position.extentAfter);
-    if (scrollController.position.extentAfter < 500) {
-      setState(() {});
+    if (scrollController.position.extentAfter == 0) {
+      if (subscription == null) {
+        searchUser(searchString);
+      }
     }
   }
 }
