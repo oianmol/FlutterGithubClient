@@ -15,17 +15,25 @@ abstract class BaseStatefulState<StatefulWidget> extends State {
     ),
   );
 
+  bool isVisible = false;
+
   @override
   Widget build(BuildContext context) {
     return prepareWidget(context);
   }
 
   void showProgress() {
-    scaffoldKey.currentState.showSnackBar(snackBar);
+    if(!isVisible){
+      scaffoldKey.currentState.showSnackBar(snackBar);
+    }
+    isVisible = true;
   }
 
   void hideProgress() {
-    scaffoldKey.currentState.hideCurrentSnackBar();
+    if(isVisible){
+      scaffoldKey.currentState.hideCurrentSnackBar();
+    }
+    isVisible = false;
   }
 
   Widget prepareWidget(BuildContext context);

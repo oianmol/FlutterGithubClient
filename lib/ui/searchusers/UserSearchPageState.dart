@@ -108,10 +108,12 @@ class UserSearchPageState extends BaseStatefulState<UserSearchPage>
 
   searchUser(String string) {
     if(this.searchString!=null && searchString.compareTo(string)!=0){
-      page = 1;
+      setState(() {
+        page = 1;
+        this.users = null;
+      });
     }
     this.searchString = string;
-    hideProgress();
     if (subscription != null) {
       subscription.cancel();
     }
