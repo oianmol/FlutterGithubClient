@@ -14,6 +14,7 @@ class Github {
   static String authorizeBasicUrl = "https://api.github.com/authorizations";
   static String getUserGithub = "https://api.github.com/search/users";
   static String getMyUserGithub = "https://api.github.com/user";
+  static String getUserProfileGithub = "https://api.github.com/users";
   static String getMyReposGithub = "https://api.github.com/user/repos";
   static String getMyOrgsGithub = "https://api.github.com/user/orgs";
   static String getUsersReposGithub = "https://api.github.com/users/:username/repos";
@@ -153,6 +154,12 @@ class Github {
     return http.get(fullUrl);
   }
 
+  static Future<http.Response> getUserProfile(String username){
+    String fullUrl = getUserProfileGithub +"/$username";
+    print(fullUrl);
+    return http.get(fullUrl);
+  }
+
   static Future<http.Response> getAllMyRepos(String accessToken) {
     String fullUrl =
         getMyReposGithub + "?access_token=" + accessToken + affiliationParamRepoSearch;
@@ -175,19 +182,6 @@ class Github {
     return http.get(fullUrl);
   }
 
-  /**
-   * flutter: [{"login":"mutualmobile","id":166419,
-   * "node_id":"MDEyOk9yZ2FuaXphdGlvbjE2NjQxOQ==",
-   * "url":"https://api.github.com/orgs/mutualmobile",
-   * "repos_url":"https://api.github.com/orgs/mutualmobile/repos",
-   * "events_url":"https://api.github.com/orgs/mutualmobile/events",
-   * "hooks_url":"https://api.github.com/orgs/mutualmobile/hooks",
-   * "issues_url":"https://api.github.com/orgs/mutualmobile/issues",
-   * "members_url":"https://api.github.com/orgs/mutualmobile/members{/member}",
-   * "public_members_url":"https://api.github.com/orgs/mutualmobile/public_members{/member}",
-   * "avatar_url":"https://avatars3.githubusercontent.com/u/166419?v=4",
-   * "description":"We build breakthrough products in partnership with the world's leading companies."}]
-   */
   static Future<http.Response> getMyOrganizations(String accessToken) {
     String fullUrl = getMyOrgsGithub + "?access_token=" + accessToken + affiliationParamRepoSearch;
     print(fullUrl);

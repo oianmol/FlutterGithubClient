@@ -14,7 +14,7 @@ import 'package:http/http.dart';
 
 class UserProfileState extends BaseStatefulState<UserProfilePage> {
 
-  final UserProfile user;
+  UserProfile user;
 
   String accessToken;
 
@@ -22,6 +22,8 @@ class UserProfileState extends BaseStatefulState<UserProfilePage> {
   RepoListProvider repoListProvider;
 
   var repos;
+
+  StreamSubscription<Response> subScriptionApiUserProfile;
 
 
   UserProfileState(@required this.user);
@@ -79,7 +81,24 @@ class UserProfileState extends BaseStatefulState<UserProfilePage> {
         this.repos = repos;
       });
       hideProgress();
+      getUserProfile();
     });
 
+  }
+
+  void getUserProfile() {
+    hideProgress();
+    if (subScriptionApiUserProfile != null) {
+      subScriptionApiUserProfile.cancel();
+    }
+    showProgress();
+
+    var getUserProfile = Github.getUserProfile(user.login).asStream();
+    subScriptionApiUserProfile = getUserProfile.listen((response) {
+      this.setState(() {
+        this.user = UserProfile.fromJson(json.decode(response.body));
+      });
+      hideProgress();
+    });
   }
 }

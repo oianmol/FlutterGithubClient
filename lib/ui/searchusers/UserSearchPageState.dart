@@ -107,6 +107,9 @@ class UserSearchPageState extends BaseStatefulState<UserSearchPage>
   }
 
   searchUser(String string) {
+    if(this.searchString!=null && searchString.compareTo(string)!=0){
+      page = 1;
+    }
     this.searchString = string;
     hideProgress();
     if (subscription != null) {
@@ -148,6 +151,9 @@ class UserSearchPageState extends BaseStatefulState<UserSearchPage>
         );
       } else {
         this.actionIcon = new Icon(Icons.search);
+        if(this.subscription!=null){
+          this.subscription.cancel();
+        }
         this.users = null;
         this.appBarTitle = new Text("Search Github Users...");
       }
