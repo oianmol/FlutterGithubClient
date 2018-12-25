@@ -7,19 +7,22 @@ import 'package:LoginUI/ui/repolist/RepoListPage.dart';
 import 'package:LoginUI/utils/SharedPrefs.dart';
 import 'package:flutter/material.dart';
 import 'package:http/src/response.dart';
+import 'package:LoginUI/utils/RepoListProvider.dart';
 
 class RepoListPageState extends BaseStatefulState<RepoListPage>
     with TickerProviderStateMixin {
-  List<dynamic> repos;
   Widget appBarTitle = new Text("My Repos");
 
   String accessToken;
-
+  RepoListProvider repoListProvider;
   StreamSubscription<Response> subscriptionMyRepos;
+
+  var repos;
 
   @override
   void initState() {
     super.initState();
+    repoListProvider = new RepoListProvider();
     SharedPrefs().getToken().then((token) {
       accessToken = token;
       getMyRepos();
@@ -28,51 +31,15 @@ class RepoListPageState extends BaseStatefulState<RepoListPage>
 
   @override
   Widget prepareWidget(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
+    var uiElements = <Widget>[toolbarAndroid()];
+    uiElements.add(toolbarAndroid());
+    uiElements.addAll(repoListProvider.reposList(repos,"My Repositories"));
+
     return new Scaffold(
         key: scaffoldKey,
         body: new Column(
-          children: <Widget>[toolbarAndroid(), listVIew()],
+          children: uiElements,
         ));
-  }
-
-  listVIew() {
-    return new Expanded(
-        child: new ListView.builder(
-            padding: new EdgeInsets.all(8.0),
-            itemCount: repos == null ? 0 : repos.length,
-            itemBuilder: (BuildContext context, int index) {
-              return new Container(
-                alignment: Alignment.centerLeft,
-                margin: EdgeInsets.only(top: 5.0, left: 5.0, right: 5.0),
-                child: new Column(children: <Widget>[
-                  new Container(
-                    alignment: Alignment.centerLeft,
-                    margin: EdgeInsets.only(top: 5.0, left: 5.0),
-                    child: new Text('${repos[index]['name']}',
-                        style: TextStyle(
-                            fontStyle: FontStyle.normal,
-                            fontSize: 18.0,
-                            color: Colors.green)),
-                  ),
-                  new Container(
-                    alignment: Alignment.centerLeft,
-                    margin: EdgeInsets.only(top: 5.0, left: 5.0),
-                    child: new Text(
-                        'Repo Type: ${(repos[index]['private'] as bool) ? "Private" : "Public"}',
-                        style: TextStyle(
-                            fontStyle: FontStyle.italic,
-                            fontSize: 14.0,
-                            color: Colors.blueGrey)),
-                  )
-                ]),
-              );
-            }));
   }
 
   toolbarAndroid() {
@@ -83,18 +50,13 @@ class RepoListPageState extends BaseStatefulState<RepoListPage>
   }
 
   getMyRepos() {
-    hideProgress();
+    showProgress();
     if (subscriptionMyRepos != null) {
       subscriptionMyRepos.cancel();
     }
-    showProgress();
-    var stream = Github.getAllMyRepos(accessToken).asStream();
-    subscriptionMyRepos = stream.listen((response) {
+    subscriptionMyRepos = repoListProvider.getMyRepos(accessToken, (repos) {
       this.setState(() {
-        print(response.body);
-        repos = json.decode(response.body) as List;
-        print(repos);
-        //print(getUserResponse);
+        this.repos = repos;
       });
       hideProgress();
     });

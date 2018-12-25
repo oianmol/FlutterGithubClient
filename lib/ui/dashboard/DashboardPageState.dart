@@ -7,6 +7,7 @@ import 'package:LoginUI/network/Github.dart';
 import 'package:LoginUI/ui/base/BaseStatefulState.dart';
 import 'package:LoginUI/ui/dashboard/DashboardPage.dart';
 import 'package:LoginUI/ui/dashboard/DrawerHeaderLayout.dart';
+import 'package:LoginUI/utils/RepoListProvider.dart';
 import 'package:LoginUI/utils/SharedPrefs.dart';
 import 'package:flutter/material.dart';
 import 'package:http/src/response.dart';
@@ -16,10 +17,22 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
   String accessToken;
   StreamSubscription<UserProfile> subscriptionMyProfile;
   StreamSubscription<Response> subScriptionApiUserProfile;
+  StreamSubscription<Response> subStarredRepos;
+  StreamSubscription subMyRepos;
+
+  RepoListProvider repoListProvider;
+
+  var starredRepos;
+
+  var myRepos;
+
+  var toolbar = GlobalKey(debugLabel: "toolbar");
+
 
   @override
   void initState() {
     super.initState();
+    repoListProvider = new RepoListProvider();
     SharedPrefs().getToken().then((token) {
       accessToken = token;
       getMyUserProfile();
@@ -41,6 +54,7 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
       userDashboardTitle = "Dashboard";
     }
     return new AppBar(
+      key: toolbar,
       centerTitle: false,
       title: new Text(userDashboardTitle),
     );
@@ -91,20 +105,35 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
 
   @override
   Widget prepareWidget(BuildContext context) {
+    var uiElements = <Widget>[];
+    uiElements.add(new Container(height: kToolbarHeight + 20,));
+    uiElements.add(getCardMyView(starredRepos,"Starred Repos"));
+    uiElements.add(getCardMyView(myRepos,"Repositories"));
+
     return new Scaffold(
         key: scaffoldKey,
         drawer: getDrawer(),
-        body: new Stack(
-          children: <Widget>[toolbarAndroid()],
-        ));
+        body: new Stack(children: <Widget>[toolbarAndroid(),new CustomScrollView(
+          slivers: [
+            new SliverList(
+              delegate: new SliverChildListDelegate(
+                uiElements,
+              ),
+            ),
+          ],
+        )],));
   }
 
   void getMyUserProfile() {
     var stream = SharedPrefs().getCurrentUserProfile().asStream();
+    if (subscriptionMyProfile != null) {
+      subscriptionMyProfile.cancel();
+    }
     subscriptionMyProfile = stream.listen((profile) {
       if (profile != null) {
         this.setState(() {
-          currentUserProfile = profile;
+          currentUserProfile =  profile;
+          getMyStarredRepos();
         });
       } else {
         getApiUserProfile();
@@ -113,7 +142,12 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
   }
 
   void getApiUserProfile() {
+    hideProgress();
+    if (subScriptionApiUserProfile != null) {
+      subScriptionApiUserProfile.cancel();
+    }
     showProgress();
+
     var getUserProfile = Github.getMyUserProfile(accessToken).asStream();
     subScriptionApiUserProfile = getUserProfile.listen((response) {
       SharedPrefs().saveCurrentUserProfile(response.body);
@@ -122,5 +156,45 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
       });
       hideProgress();
     });
+  }
+
+  void getMyStarredRepos() {
+    showProgress();
+    if (subStarredRepos != null) {
+      subStarredRepos.cancel();
+    }
+    subStarredRepos =
+        repoListProvider.getStarredRepos(currentUserProfile.login, (repos) {
+      this.setState(() {
+        this.starredRepos = repos;
+      });
+      hideProgress();
+      getMyRepos();
+    });
+  }
+
+  void getMyRepos() {
+    showProgress();
+    if (subMyRepos != null) {
+      subMyRepos.cancel();
+    }
+    subMyRepos =
+        repoListProvider.getMyRepos(accessToken, (repos) {
+          this.setState(() {
+            this.myRepos = repos;
+          });
+          hideProgress();
+        });
+  }
+
+  Widget getCardMyView(var repos,String title) {
+    return new Center(
+      child: Card(
+        margin: EdgeInsets.all(10),
+        elevation: 4,
+        child: new Column(
+            children: repoListProvider.reposList(repos, title)),
+      ),
+    );
   }
 }

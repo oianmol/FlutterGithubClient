@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:LoginUI/network/Github.dart';
 import 'package:LoginUI/ui/base/BaseStatefulState.dart';
 import 'package:LoginUI/ui/data/User.dart';
+import 'package:LoginUI/utils/RepoListProvider.dart';
 import 'package:LoginUI/userprofile/UserProfilePage.dart';
 import 'package:LoginUI/utils/SharedPrefs.dart';
 import 'package:flutter/src/widgets/framework.dart';
@@ -14,9 +15,12 @@ class UserProfileState extends BaseStatefulState<UserProfilePage> {
 
   final User user;
 
-  StreamSubscription<Response> subscriptionRepos;
   String accessToken;
-  List<dynamic> repos;
+
+  StreamSubscription<Response> subscriptionRepos;
+  RepoListProvider repoListProvider;
+
+  var repos;
 
 
   UserProfileState(@required this.user);
@@ -25,20 +29,25 @@ class UserProfileState extends BaseStatefulState<UserProfilePage> {
   @override
   void initState() {
     super.initState();
+    repoListProvider = new RepoListProvider();
     SharedPrefs().getToken().then((token) {
       accessToken = token;
       print(user);
-     getRepos();
+      getRepos();
     });
   }
 
   @override
   Widget prepareWidget(BuildContext context) {
+    var uiElements = <Widget>[toolbarAndroid()];
+    uiElements.add(header());
+    uiElements.addAll(repoListProvider.reposList(repos,"Repositories"));
+
     return new Scaffold(
       key: scaffoldKey,
       appBar: toolbarAndroid(),
       body: new Column(
-        children: <Widget>[header(), listVIew()],
+        children: uiElements,
       ),
     );
   }
@@ -102,55 +111,20 @@ class UserProfileState extends BaseStatefulState<UserProfilePage> {
     );
   }
 
-  listVIew() {
-    return new Expanded(
-        child: new ListView.builder(
-            padding: new EdgeInsets.all(8.0),
-            itemCount: repos == null ? 0 : repos.length,
-            itemBuilder: (BuildContext context, int index) {
-              return new Container(
-                alignment: Alignment.centerLeft,
-                margin: EdgeInsets.only(top: 5.0, left: 5.0, right: 5.0),
-                child: new Column(children: <Widget>[
-                  new Container(
-                    alignment: Alignment.centerLeft,
-                    margin: EdgeInsets.only(top: 5.0, left: 5.0),
-                    child: new Text('${repos[index]['name']}',
-                        style: TextStyle(
-                            fontStyle: FontStyle.normal,
-                            fontSize: 18.0,
-                            color: Colors.green)),
-                  ),
-                  new Container(
-                    alignment: Alignment.centerLeft,
-                    margin: EdgeInsets.only(top: 5.0, left: 5.0),
-                    child: new Text(
-                        'Repo Type: ${(repos[index]['private'] as bool) ? "Private" : "Public"}',
-                        style: TextStyle(
-                            fontStyle: FontStyle.italic,
-                            fontSize: 14.0,
-                            color: Colors.blueGrey)),
-                  )
-                ]),
-              );
-            }));
-  }
+
 
   getRepos() {
-    hideProgress();
     if (subscriptionRepos != null) {
       subscriptionRepos.cancel();
     }
     showProgress();
-    var stream = Github.getUserRepos(accessToken, user.login).asStream();
-    subscriptionRepos = stream.listen((response) {
+
+    subscriptionRepos = repoListProvider.getUserRepos(accessToken,user.login,(repos){
       this.setState(() {
-        print(response.body);
-        repos = json.decode(response.body) as List;
-        print(repos);
-        //print(getUserResponse);
+        this.repos = repos;
       });
       hideProgress();
     });
+
   }
 }

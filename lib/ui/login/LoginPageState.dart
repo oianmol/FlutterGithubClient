@@ -288,10 +288,8 @@ class LoginPageState extends BaseStatefulState<LoginPage>
     var stream = Github.getMyUserProfile(token).asStream();
     stream.listen((response) {
       SharedPrefs().saveCurrentUserProfile(response.body);
-      this.setState(() {
-        fetchedAccessToken();
-      });
       hideProgress();
+      fetchedAccessToken();
     });
   }
 
