@@ -39,7 +39,7 @@ class UserProfileState extends BaseStatefulState<UserProfilePage> {
 
   @override
   Widget prepareWidget(BuildContext context) {
-    var uiElements = <Widget>[toolbarAndroid()];
+    var uiElements = <Widget>[];
     uiElements.add(header());
     uiElements.add(new Expanded(child: repoListProvider.getReposList(repos,false)));
 
