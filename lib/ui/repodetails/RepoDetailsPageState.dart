@@ -15,8 +15,6 @@ import 'package:url_launcher/url_launcher.dart';
 
 class RepoDetailsPageState extends BaseStatefulState<RepoDetailsPage>
     with TickerProviderStateMixin {
-  var repoName = "My Repo";
-
   String accessToken;
 
   String repoId;
@@ -65,6 +63,7 @@ class RepoDetailsPageState extends BaseStatefulState<RepoDetailsPage>
     }
     return new Scaffold(
         key: scaffoldKey,
+        backgroundColor: Colors.black54,
         body: new Column(
           children: uiElements,
         ));
@@ -74,7 +73,7 @@ class RepoDetailsPageState extends BaseStatefulState<RepoDetailsPage>
     return new AppBar(
       backgroundColor: Colors.black,
       centerTitle: false,
-      title: new Text(repoName),
+      title: new Text(repoId),
     );
   }
 
@@ -82,22 +81,28 @@ class RepoDetailsPageState extends BaseStatefulState<RepoDetailsPage>
     if(subscriptionRepoDetails!=null){
       subscriptionRepoDetails.cancel();
     }
+    showProgress();
    subscriptionRepoDetails =  Github.getApiForUrl(Github.getUserRepoGithub.replaceFirst(Github.USER, loginName).replaceFirst(Github.REPO, repoId)).asStream().listen((repo){
-      print(repo.body.toString());
       repoModel = ReposModel.fromJson(json.decode(repo.body));
-      repoName = repoModel.name;
       setState(() {
       });
+      hideProgress();
       getContributors();
     });
   }
 
   Widget repoDetailView() {
+    var listWidgets = List<Widget>();
+
+    listWidgets.add(getRepoDetails());
+    listWidgets.add(getContributorsList());
+
     return new CustomScrollView(
       shrinkWrap: true,
+      physics: AlwaysScrollableScrollPhysics(),
       slivers: [
         new SliverList(
-          delegate: new SliverChildListDelegate(<Widget>[getRepoDetails()]),
+          delegate: new SliverChildListDelegate(listWidgets),
         ),
       ],
     );
@@ -108,6 +113,7 @@ class RepoDetailsPageState extends BaseStatefulState<RepoDetailsPage>
       subscriptionContributors.cancel();
     }
     if (repoModel != null && repoModel.contributorsUrl != null) {
+      showProgress();
       subscriptionContributors = Github.getApiForUrl(repoModel.contributorsUrl)
           .asStream()
           .listen((result) {
@@ -116,19 +122,20 @@ class RepoDetailsPageState extends BaseStatefulState<RepoDetailsPage>
           this.contributorsModel.add(ContributorsModel.fromJson(item));
         });
         setState(() {});
+        hideProgress();
       });
     }
   }
 
-  Column getRepoDetails() {
+  Widget getRepoDetails() {
     var listWidgets = List<Widget>();
 
     listWidgets
-        .add(Image.network(repoModel.owner.avatarUrl, width: 40, height: 40));
+        .add(Container(margin: EdgeInsets.all(8),child: Image.network(repoModel.owner.avatarUrl, width: 80, height: 80)));
     listWidgets.add(Container(
         child: Text(
           repoModel.fullName,
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.bold,fontSize: 18),
         ),
         padding: EdgeInsets.all(4.0)));
     listWidgets.add(Container(
@@ -154,16 +161,8 @@ class RepoDetailsPageState extends BaseStatefulState<RepoDetailsPage>
       ),
       padding: EdgeInsets.all(4.0),
     ));
-    listWidgets.add(Container(
-      child: Text(
-        "Contributors:",
-        style: TextStyle(fontWeight: FontWeight.bold),
-      ),
-      padding: EdgeInsets.all(4.0),
-    ));
-    listWidgets.add(getContributorsList());
 
-    return Column(children: listWidgets);
+    return Center(child: Card(child: Column(children: listWidgets)));
   }
 
   getDetailView(ContributorsModel repo) {
@@ -189,38 +188,44 @@ class RepoDetailsPageState extends BaseStatefulState<RepoDetailsPage>
         ]);
   }
 
-  getContributorsList() {
+  Widget getContributorsList() {
+    var list = List<Widget>();
     if (contributorsModel != null) {
-      return ListView.builder(
-          padding: new EdgeInsets.all(8.0),
-          itemCount: contributorsModel == null ? 0 : contributorsModel.length,
-          shrinkWrap: true,
-          physics: ClampingScrollPhysics(),
-          itemBuilder: (BuildContext context, int index) {
-            return new GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => UserProfilePage(
-                            this.contributorsModel.elementAt(index).login)),
-                  );
-                },
-                child: new Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    new Container(
-                      child: new Image.network(
-                          '${contributorsModel.elementAt(index).avatarUrl}',
-                          width: 40.0,
-                          height: 40.0),
-                      padding: EdgeInsets.all(10),
-                    ),
-                    getDetailView(contributorsModel.elementAt(index))
-                  ],
-                ));
-          });
+      list.add(Container(
+        alignment: Alignment.centerLeft,
+        margin: EdgeInsets.all(5),
+        child: Text(
+          "Contributors:",
+          style: TextStyle(fontWeight: FontWeight.bold,fontSize: 18),
+        ),
+        padding: EdgeInsets.all(4.0),
+      ));
+      contributorsModel.forEach((item){
+        list.add( GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => UserProfilePage(
+                        item.login)),
+              );
+            },
+            child: new Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                new Container(
+                  child: new Image.network(
+                      '${item.avatarUrl}',
+                      width: 40.0,
+                      height: 40.0),
+                  padding: EdgeInsets.all(10),
+                ),
+                getDetailView(item)
+              ],
+            )));
+      });
     }
+    return Center(child: Card(child: Column(children: list)));
   }
 }
