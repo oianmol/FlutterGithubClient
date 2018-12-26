@@ -147,19 +147,9 @@ class RepoDetailsPageState extends BaseStatefulState<RepoDetailsPage>
       ),
       padding: EdgeInsets.all(4.0),
     ));
-    listWidgets.add(getCardMyView());
+    listWidgets.add(getContributorsList());
 
     return Column(children: listWidgets);
-  }
-
-  Widget getCardMyView() {
-    return new Center(
-      child: Card(
-        margin: EdgeInsets.all(10),
-        elevation: 4,
-        child: new Container(child: getContributorsList()),
-      ),
-    );
   }
 
   getDetailView(ContributorsModel repo) {
@@ -196,8 +186,6 @@ class RepoDetailsPageState extends BaseStatefulState<RepoDetailsPage>
           itemBuilder: (BuildContext context, int index) {
             return new GestureDetector(
                 onTap: () {
-                  if(contributorsModel.elementAt(index).login!=null){
-                    print(contributorsModel.elementAt(index).toString());
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -206,7 +194,6 @@ class RepoDetailsPageState extends BaseStatefulState<RepoDetailsPage>
                               .elementAt(index)
                               .login)),
                     );
-                  }
                 },
                 child: new Row(
                   mainAxisAlignment: MainAxisAlignment.start,
