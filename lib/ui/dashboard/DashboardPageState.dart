@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:LoginUI/Routes.dart';
 import 'package:LoginUI/main.dart';
+import 'package:LoginUI/model/ReposModel.dart';
 import 'package:LoginUI/model/UserProfile.dart';
 import 'package:LoginUI/network/Github.dart';
 import 'package:LoginUI/ui/base/BaseStatefulState.dart';
@@ -22,9 +23,8 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
 
   RepoListProvider repoListProvider;
 
-  var starredRepos;
-
-  var myRepos;
+  List<ReposModel> starredRepos;
+  List<ReposModel> myRepos;
 
   var toolbar = GlobalKey(debugLabel: "toolbar");
 

@@ -1,13 +1,12 @@
 import 'dart:async';
-import 'dart:convert';
 
-import 'package:LoginUI/network/Github.dart';
+import 'package:LoginUI/model/ReposModel.dart';
 import 'package:LoginUI/ui/base/BaseStatefulState.dart';
 import 'package:LoginUI/ui/repolist/RepoListPage.dart';
+import 'package:LoginUI/utils/RepoListProvider.dart';
 import 'package:LoginUI/utils/SharedPrefs.dart';
 import 'package:flutter/material.dart';
 import 'package:http/src/response.dart';
-import 'package:LoginUI/utils/RepoListProvider.dart';
 
 class RepoListPageState extends BaseStatefulState<RepoListPage>
     with TickerProviderStateMixin {
@@ -17,7 +16,7 @@ class RepoListPageState extends BaseStatefulState<RepoListPage>
   RepoListProvider repoListProvider;
   StreamSubscription<Response> subscriptionMyRepos;
 
-  var repos;
+  List<ReposModel> repos;
 
   @override
   void initState() {
@@ -33,7 +32,9 @@ class RepoListPageState extends BaseStatefulState<RepoListPage>
   Widget prepareWidget(BuildContext context) {
     var uiElements = <Widget>[];
     uiElements.add(toolbarAndroid());
-    uiElements.add(new Expanded(child: repoListProvider.getReposList(repos,false)));
+    if(repos!=null){
+      uiElements.add(new Expanded(child: repoListProvider.getReposList(repos,false)));
+    }
 
     return new Scaffold(
         key: scaffoldKey,

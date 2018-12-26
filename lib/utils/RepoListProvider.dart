@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:LoginUI/model/ReposModel.dart';
 import 'package:LoginUI/network/Github.dart';
 import 'package:flutter/material.dart';
 import 'package:http/src/response.dart';
@@ -24,8 +25,11 @@ class RepoListProvider {
     var stream = Github.getAllMyRepos(accessToken).asStream();
     return stream.listen((response) {
       var repos = json.decode(response.body) as List;
-      print(repos);
-      func(repos);
+      var reposList = List<ReposModel>();
+      repos.forEach((json){
+        reposList.add(ReposModel.fromJson(json));
+      });
+      func(reposList);
     });
   }
 
@@ -34,8 +38,11 @@ class RepoListProvider {
     var stream = Github.getUserRepos(accessToken, login).asStream();
     return stream.listen((response) {
       var repos = json.decode(response.body) as List;
-      print(repos);
-      func(repos);
+      var reposList = List<ReposModel>();
+      repos.forEach((json){
+        reposList.add(ReposModel.fromJson(json));
+      });
+      func(reposList);
     });
   }
 
@@ -43,12 +50,15 @@ class RepoListProvider {
     var stream = Github.getUserStarredRepos(username).asStream();
     return stream.listen((response) {
       var repos = json.decode(response.body) as List;
-      print(repos);
-      func(repos);
+      var reposList = List<ReposModel>();
+      repos.forEach((json){
+        reposList.add(ReposModel.fromJson(json));
+      });
+      func(reposList);
     });
   }
 
-  getReposList(List repos, bool notScrollable) {
+  getReposList(List<ReposModel> repos, bool notScrollable) {
     return new ListView.builder(
         padding: new EdgeInsets.all(8.0),
         itemCount: repos == null ? 0 : repos.length,
@@ -63,23 +73,23 @@ class RepoListProvider {
             children: <Widget>[
               new Container(
                 child: new Image.network(
-                    '${repos[index]['owner']['avatar_url']}',
+                    '${repos.elementAt(index).owner.avatarUrl}',
                     width: 40.0,
                     height: 40.0),
                 padding: EdgeInsets.all(10),
               ),
-              getDetailView(repos[index])
+              getDetailView(repos.elementAt(index))
             ],
           );
         });
   }
 
-  getDetailView(repo) {
+  getDetailView(ReposModel repo) {
     return new Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           new Text(
-            '${repo['name']}',
+            '${repo.name}',
             style: TextStyle(
                 fontStyle: FontStyle.normal,
                 fontSize: 16.0,
@@ -88,7 +98,7 @@ class RepoListProvider {
             overflow: TextOverflow.ellipsis,
           ),
           new Text(
-              'Repo Type: ${(repo['private'] as bool) ? "Private" : "Public"}',
+              'Repo Type: ${(repo.private) ? "Private" : "Public"}',
               style: TextStyle(
                   fontStyle: FontStyle.italic,
                   fontSize: 14.0,

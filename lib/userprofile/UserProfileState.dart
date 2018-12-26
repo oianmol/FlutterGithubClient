@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:LoginUI/model/ReposModel.dart';
 import 'package:LoginUI/model/UserProfile.dart';
 import 'package:LoginUI/network/Github.dart';
 import 'package:LoginUI/ui/base/BaseStatefulState.dart';
@@ -21,7 +22,7 @@ class UserProfileState extends BaseStatefulState<UserProfilePage> {
   StreamSubscription<Response> subscriptionRepos;
   RepoListProvider repoListProvider;
 
-  var repos;
+  List<ReposModel> repos;
 
   StreamSubscription<Response> subScriptionApiUserProfile;
 
