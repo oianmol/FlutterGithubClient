@@ -7,7 +7,6 @@ import 'package:LoginUI/network/Github.dart';
 import 'package:LoginUI/ui/base/BaseStatefulState.dart';
 import 'package:LoginUI/ui/repodetails/RepoDetailsPage.dart';
 import 'package:LoginUI/userprofile/UserProfilePage.dart';
-import 'package:LoginUI/utils/RepoListProvider.dart';
 import 'package:LoginUI/utils/SharedPrefs.dart';
 import 'package:flutter/material.dart';
 import 'package:http/src/response.dart';
@@ -28,8 +27,7 @@ class RepoDetailsPageState extends BaseStatefulState<RepoDetailsPage>
 
   StreamSubscription<Response> subscriptionRepoDetails;
 
-
-  RepoDetailsPageState(String loginName,String repoId) {
+  RepoDetailsPageState(String loginName, String repoId) {
     this.repoId = repoId;
     this.loginName = loginName;
   }
@@ -48,7 +46,7 @@ class RepoDetailsPageState extends BaseStatefulState<RepoDetailsPage>
     if (subscriptionContributors != null) {
       subscriptionContributors.cancel();
     }
-    if(subscriptionRepoDetails!=null){
+    if (subscriptionRepoDetails != null) {
       subscriptionRepoDetails.cancel();
     }
     super.dispose();
@@ -59,13 +57,20 @@ class RepoDetailsPageState extends BaseStatefulState<RepoDetailsPage>
     var uiElements = <Widget>[];
     uiElements.add(toolbarAndroid());
     if (repoModel != null) {
-      uiElements.add(repoDetailView());
+      uiElements.add(getRepoDetails());
+    }
+    if (contributorsModel != null) {
+      uiElements.add(getContributorsList());
     }
     return new Scaffold(
         key: scaffoldKey,
         backgroundColor: Colors.black54,
-        body: new Column(
-          children: uiElements,
+        body: new CustomScrollView(
+          slivers: [
+            new SliverList(
+              delegate: new SliverChildListDelegate(uiElements),
+            ),
+          ],
         ));
   }
 
@@ -78,34 +83,20 @@ class RepoDetailsPageState extends BaseStatefulState<RepoDetailsPage>
   }
 
   void getMyRepoDetails() {
-    if(subscriptionRepoDetails!=null){
+    if (subscriptionRepoDetails != null) {
       subscriptionRepoDetails.cancel();
     }
     showProgress();
-   subscriptionRepoDetails =  Github.getApiForUrl(Github.getUserRepoGithub.replaceFirst(Github.USER, loginName).replaceFirst(Github.REPO, repoId)).asStream().listen((repo){
+    subscriptionRepoDetails = Github.getApiForUrl(Github.getUserRepoGithub
+            .replaceFirst(Github.USER, loginName)
+            .replaceFirst(Github.REPO, repoId))
+        .asStream()
+        .listen((repo) {
       repoModel = ReposModel.fromJson(json.decode(repo.body));
-      setState(() {
-      });
+      setState(() {});
       hideProgress();
       getContributors();
     });
-  }
-
-  Widget repoDetailView() {
-    var listWidgets = List<Widget>();
-
-    listWidgets.add(getRepoDetails());
-    listWidgets.add(getContributorsList());
-
-    return new CustomScrollView(
-      shrinkWrap: true,
-      physics: AlwaysScrollableScrollPhysics(),
-      slivers: [
-        new SliverList(
-          delegate: new SliverChildListDelegate(listWidgets),
-        ),
-      ],
-    );
   }
 
   void getContributors() {
@@ -130,12 +121,14 @@ class RepoDetailsPageState extends BaseStatefulState<RepoDetailsPage>
   Widget getRepoDetails() {
     var listWidgets = List<Widget>();
 
-    listWidgets
-        .add(Container(margin: EdgeInsets.all(8),child: Image.network(repoModel.owner.avatarUrl, width: 80, height: 80)));
+    listWidgets.add(Container(
+        margin: EdgeInsets.all(8),
+        child:
+            Image.network(repoModel.owner.avatarUrl, width: 80, height: 80)));
     listWidgets.add(Container(
         child: Text(
           repoModel.fullName,
-          style: TextStyle(fontWeight: FontWeight.bold,fontSize: 18),
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         padding: EdgeInsets.all(4.0)));
     listWidgets.add(Container(
@@ -196,18 +189,17 @@ class RepoDetailsPageState extends BaseStatefulState<RepoDetailsPage>
         margin: EdgeInsets.all(5),
         child: Text(
           "Contributors:",
-          style: TextStyle(fontWeight: FontWeight.bold,fontSize: 18),
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         padding: EdgeInsets.all(4.0),
       ));
-      contributorsModel.forEach((item){
-        list.add( GestureDetector(
+      contributorsModel.forEach((item) {
+        list.add(GestureDetector(
             onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => UserProfilePage(
-                        item.login)),
+                    builder: (context) => UserProfilePage(item.login)),
               );
             },
             child: new Row(
@@ -215,10 +207,8 @@ class RepoDetailsPageState extends BaseStatefulState<RepoDetailsPage>
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
                 new Container(
-                  child: new Image.network(
-                      '${item.avatarUrl}',
-                      width: 40.0,
-                      height: 40.0),
+                  child: new Image.network('${item.avatarUrl}',
+                      width: 40.0, height: 40.0),
                   padding: EdgeInsets.all(10),
                 ),
                 getDetailView(item)
