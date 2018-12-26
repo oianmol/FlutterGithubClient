@@ -8,6 +8,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 class Github {
   static var USER = "{user}";
+  static var REPO = "{repo}";
 
   static String authorizeURL = "https://github.com/login/oauth/authorize";
   static String accessTokenURL = "https://github.com/login/oauth/access_token";
@@ -17,6 +18,7 @@ class Github {
   static String getUserProfileGithub = "https://api.github.com/users";
   static String getMyReposGithub = "https://api.github.com/user/repos";
   static String getMyOrgsGithub = "https://api.github.com/user/orgs";
+  static String getUserRepoGithub = "https://api.github.com/repos/$USER/$REPO";
   static String getUsersReposGithub = "https://api.github.com/users/:username/repos";
   static String getStarredReposGithub = "https://api.github.com/users/$USER/starred";
 

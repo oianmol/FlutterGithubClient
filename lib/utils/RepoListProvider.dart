@@ -9,11 +9,11 @@ import 'package:flutter/material.dart';
 import 'package:http/src/response.dart';
 
 class RepoListProvider {
-  static List<ReposModel> starredRepos;
-  static List<ReposModel> myRepos;
-  static List<ReposModel> userRepos;
+  List<ReposModel> starredRepos;
+  List<ReposModel> myRepos;
+  List<ReposModel> userRepos;
 
-  static List<Widget> reposList(List<dynamic> repos, String title) {
+  List<Widget> reposList(List<dynamic> repos, String title) {
     return [
       new Container(
           child: new Text(title,
@@ -25,7 +25,7 @@ class RepoListProvider {
     ];
   }
 
-  static StreamSubscription getMyRepos(
+  StreamSubscription getMyRepos(
       int page, int max, String accessToken, Function func) {
     var stream = Github.getAllMyRepos(accessToken, max, page).asStream();
     return stream.listen((response) {
@@ -35,13 +35,12 @@ class RepoListProvider {
         reposList.add(ReposModel.fromJson(json));
       });
       func(reposList);
-      myRepos = reposList;
     });
   }
 
-  static StreamSubscription<Response> getUserRepos(int page,int max,
-      String accessToken, String login, Function func) {
-    var stream = Github.getUserRepos(page,max,accessToken, login).asStream();
+  StreamSubscription<Response> getUserRepos(
+      int page, int max, String accessToken, String login, Function func) {
+    var stream = Github.getUserRepos(page, max, accessToken, login).asStream();
     return stream.listen((response) {
       var repos = json.decode(response.body) as List;
       var reposList = List<ReposModel>();
@@ -49,11 +48,10 @@ class RepoListProvider {
         reposList.add(ReposModel.fromJson(json));
       });
       func(reposList);
-      userRepos = reposList;
     });
   }
 
-  static StreamSubscription<Response> getStarredRepos(
+  StreamSubscription<Response> getStarredRepos(
       int max, String username, Function func) {
     var stream = Github.getUserStarredRepos(username, max, 1).asStream();
     return stream.listen((response) {
@@ -67,28 +65,7 @@ class RepoListProvider {
     });
   }
 
-  static ReposModel getRepoDetails(String repoId) {
-    try {
-      return myRepos.where((repo) {
-        return repo.id.toString().compareTo(repoId) == 0;
-      }).first;
-    } catch (ex) {}
-
-    try {
-      return starredRepos.where((repo) {
-        return repo.id.toString().compareTo(repoId) == 0;
-      }).first;
-    } catch (ex) {}
-
-    try {
-      return userRepos.where((repo) {
-        return repo.id.toString().compareTo(repoId) == 0;
-      }).first;
-    } catch (ex) {}
-  }
-
-  static getReposList(
-      @required List<ReposModel> repos, @required bool notScrollable,
+  getReposList(@required List<ReposModel> repos, @required bool notScrollable,
       [ScrollController scrollController]) {
     return new ListView.builder(
         controller: scrollController,
@@ -103,8 +80,10 @@ class RepoListProvider {
               onTap: () {
                 Application.router.navigateTo(
                     context,
-                    Routes.repoDetails.replaceFirst(
-                        ":id", repos.elementAt(index).id.toString()));
+                    Routes.repoDetails
+                        .replaceFirst(
+                            ":loginname", repos.elementAt(index).owner.login)
+                        .replaceFirst(":repo", repos.elementAt(index).name));
               },
               child: new Row(
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -123,7 +102,7 @@ class RepoListProvider {
         });
   }
 
-  static getDetailView(ReposModel repo) {
+  getDetailView(ReposModel repo) {
     return new Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[

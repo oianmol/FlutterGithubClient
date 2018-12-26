@@ -31,9 +31,12 @@ class UserProfileState extends BaseStatefulState<UserProfilePage> {
 
   ScrollController scrollController;
 
+  RepoListProvider repoListProvider;
+
   @override
   void initState() {
     super.initState();
+    repoListProvider = new RepoListProvider();
     scrollController = new ScrollController();
     scrollController.addListener(_scrollListener);
     SharedPrefs().getToken().then((token) {
@@ -66,7 +69,7 @@ class UserProfileState extends BaseStatefulState<UserProfilePage> {
     var uiElements = <Widget>[];
     uiElements.add(header());
     uiElements.add(new Expanded(
-        child: RepoListProvider.getReposList(repos, false, scrollController)));
+        child: repoListProvider.getReposList(repos, false, scrollController)));
 
     return new Scaffold(
       key: scaffoldKey,
@@ -103,7 +106,7 @@ class UserProfileState extends BaseStatefulState<UserProfilePage> {
     showProgress();
 
     subscriptionRepos =
-        RepoListProvider.getUserRepos(page, 10, accessToken, login, (repos) {
+        repoListProvider.getUserRepos(page, 10, accessToken, login, (repos) {
       this.setState(() {
         if (this.repos == null) {
           this.repos = repos;

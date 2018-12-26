@@ -19,7 +19,8 @@ class RepoDetailsPageState extends BaseStatefulState<RepoDetailsPage>
 
   String accessToken;
 
-  var repoId;
+  String repoId;
+  String loginName;
 
   ReposModel repoModel;
 
@@ -27,8 +28,12 @@ class RepoDetailsPageState extends BaseStatefulState<RepoDetailsPage>
 
   List<ContributorsModel> contributorsModel = new List<ContributorsModel>();
 
-  RepoDetailsPageState(String repoId) {
+  StreamSubscription<Response> subscriptionRepoDetails;
+
+
+  RepoDetailsPageState(String loginName,String repoId) {
     this.repoId = repoId;
+    this.loginName = loginName;
   }
 
   @override
@@ -44,6 +49,9 @@ class RepoDetailsPageState extends BaseStatefulState<RepoDetailsPage>
   void dispose() {
     if (subscriptionContributors != null) {
       subscriptionContributors.cancel();
+    }
+    if(subscriptionRepoDetails!=null){
+      subscriptionRepoDetails.cancel();
     }
     super.dispose();
   }
@@ -71,10 +79,16 @@ class RepoDetailsPageState extends BaseStatefulState<RepoDetailsPage>
   }
 
   void getMyRepoDetails() {
-    repoModel = RepoListProvider.getRepoDetails(repoId);
-    getContributors();
-    setState(() {
+    if(subscriptionRepoDetails!=null){
+      subscriptionRepoDetails.cancel();
+    }
+   subscriptionRepoDetails =  Github.getApiForUrl(Github.getUserRepoGithub.replaceFirst(Github.USER, loginName).replaceFirst(Github.REPO, repoId)).asStream().listen((repo){
+      print(repo.body.toString());
+      repoModel = ReposModel.fromJson(json.decode(repo.body));
       repoName = repoModel.name;
+      setState(() {
+      });
+      getContributors();
     });
   }
 
@@ -83,9 +97,7 @@ class RepoDetailsPageState extends BaseStatefulState<RepoDetailsPage>
       shrinkWrap: true,
       slivers: [
         new SliverList(
-          delegate: new SliverChildListDelegate(
-            <Widget>[getRepoDetails()]
-          ),
+          delegate: new SliverChildListDelegate(<Widget>[getRepoDetails()]),
         ),
       ],
     );
@@ -95,15 +107,17 @@ class RepoDetailsPageState extends BaseStatefulState<RepoDetailsPage>
     if (subscriptionContributors != null) {
       subscriptionContributors.cancel();
     }
-    subscriptionContributors = Github.getApiForUrl(repoModel.contributorsUrl)
-        .asStream()
-        .listen((result) {
-      var list = json.decode(result.body) as List;
-      list.forEach((item) {
-        this.contributorsModel.add(ContributorsModel.fromJson(item));
+    if (repoModel != null && repoModel.contributorsUrl != null) {
+      subscriptionContributors = Github.getApiForUrl(repoModel.contributorsUrl)
+          .asStream()
+          .listen((result) {
+        var list = json.decode(result.body) as List;
+        list.forEach((item) {
+          this.contributorsModel.add(ContributorsModel.fromJson(item));
+        });
+        setState(() {});
       });
-      setState(() {});
-    });
+    }
   }
 
   Column getRepoDetails() {
@@ -179,21 +193,18 @@ class RepoDetailsPageState extends BaseStatefulState<RepoDetailsPage>
     if (contributorsModel != null) {
       return ListView.builder(
           padding: new EdgeInsets.all(8.0),
-          itemCount:
-          contributorsModel == null ? 0 : contributorsModel.length,
+          itemCount: contributorsModel == null ? 0 : contributorsModel.length,
           shrinkWrap: true,
           physics: ClampingScrollPhysics(),
           itemBuilder: (BuildContext context, int index) {
             return new GestureDetector(
                 onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => UserProfilePage(this
-                              .contributorsModel
-                              .elementAt(index)
-                              .login)),
-                    );
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => UserProfilePage(
+                            this.contributorsModel.elementAt(index).login)),
+                  );
                 },
                 child: new Row(
                   mainAxisAlignment: MainAxisAlignment.start,

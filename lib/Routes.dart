@@ -12,7 +12,7 @@ class Routes {
   static String loginDashboard = "/dashboard";
   static String dashboardRepoList = "/repolist";
   static String dashboardUserSearch = "/usersearch";
-  static String repoDetails = "/repolist/:id";
+  static String repoDetails = "/repolist/:loginname/:repo";
 
   static void configureRoutes(Router router) {
     router.notFoundHandler = new Handler(
@@ -50,5 +50,5 @@ var dashboardUserSearchHandler = new Handler(
 
 var repoDetailsHandler = new Handler(
     handlerFunc: (BuildContext context, Map<String, List<String>> params) {
-      return new RepoDetailsPage(params["id"][0]);
+      return new RepoDetailsPage(params["loginname"][0],params["repo"][0]);
     });
