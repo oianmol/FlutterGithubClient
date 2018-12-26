@@ -78,6 +78,14 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
               navigateTo(Routes.dashboardUserSearch);
             },
           ),
+          Divider(color: Colors.grey,),
+          ListTile(
+            title: Text("Notifications"),
+            onTap: () {
+              Navigator.pop(context);
+              navigateTo(Routes.notificationsList);
+            },
+          ),
           new Divider(color: Colors.grey,),
           ListTile(
             title: Text('My Repo List'),
