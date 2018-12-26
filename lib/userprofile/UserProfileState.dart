@@ -15,6 +15,7 @@ import 'package:http/http.dart';
 
 class UserProfileState extends BaseStatefulState<UserProfilePage> {
   UserProfile user;
+  var login;
 
   String accessToken;
 
@@ -24,7 +25,7 @@ class UserProfileState extends BaseStatefulState<UserProfilePage> {
 
   StreamSubscription<Response> subScriptionApiUserProfile;
 
-  UserProfileState(@required this.user);
+  UserProfileState(@required this.login);
 
   int page = 1;
 
@@ -81,14 +82,18 @@ class UserProfileState extends BaseStatefulState<UserProfilePage> {
       centerTitle: false,
       backgroundColor: Colors.black,
       title: new Text(
-        user.login,
+        login,
         textDirection: TextDirection.ltr,
       ),
     );
   }
 
   header() {
-    return new DrawerHeaderLayout(userProfile: user);
+    if (this.user != null) {
+      return new DrawerHeaderLayout(userProfile: user);
+    }else{
+      return Text("");
+    }
   }
 
   getRepos() {
@@ -97,8 +102,8 @@ class UserProfileState extends BaseStatefulState<UserProfilePage> {
     }
     showProgress();
 
-    subscriptionRepos = RepoListProvider.getUserRepos(
-        page, 10, accessToken, user.login, (repos) {
+    subscriptionRepos =
+        RepoListProvider.getUserRepos(page, 10, accessToken, login, (repos) {
       this.setState(() {
         if (this.repos == null) {
           this.repos = repos;
@@ -119,11 +124,11 @@ class UserProfileState extends BaseStatefulState<UserProfilePage> {
     }
     showProgress();
 
-    var getUserProfile = Github.getUserProfile(user.login).asStream();
+    var getUserProfile = Github.getUserProfile(login).asStream();
     subScriptionApiUserProfile = getUserProfile.listen((response) {
-      this.setState(() {
-        this.user = UserProfile.fromJson(json.decode(response.body));
-      });
+      print(response.body);
+      this.user = UserProfile.fromJson(json.decode(response.body));
+      this.setState(() {});
       hideProgress();
     });
   }

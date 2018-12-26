@@ -91,7 +91,7 @@ class UserSearchPageState extends BaseStatefulState<UserSearchPage>
   moveToUserScreen(UserProfile user) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => UserProfilePage(user)),
+      MaterialPageRoute(builder: (context) => UserProfilePage(user.login)),
     );
   }
 

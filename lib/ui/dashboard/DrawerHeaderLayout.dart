@@ -9,9 +9,14 @@ class DrawerHeaderLayout extends StatelessWidget {
 
   @override
   DrawerHeader build(BuildContext context) {
+    var listWidgets = <Widget>[];
+    if (userProfile != null) {
+      listWidgets.add(userImageWidget());
+      listWidgets.add(userDetailsWidget());
+    }
     return DrawerHeader(
       child: Row(
-        children: <Widget>[userImageWidget(), userDetailsWidget()],
+        children: listWidgets,
       ),
       decoration: BoxDecoration(
         color: Colors.black87,
@@ -40,18 +45,26 @@ class DrawerHeaderLayout extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Padding(child: Text("${userProfile.name}",
-                style: new TextStyle(color: Colors.white)),padding: EdgeInsets.only(top: 2)),
-            Padding(child: Text("${userProfile.login}",
-                style: new TextStyle(color: Colors.white)),padding: EdgeInsets.only(top: 2)),
-            Padding(child: Text(
-              "${userProfile.bio}",
-              style: new TextStyle(color: Colors.white),
-              maxLines: 4,
-              overflow: TextOverflow.ellipsis,
-            ),padding: EdgeInsets.only(top: 2)),
-            Padding(child: Text("${userProfile.company}",
-                style: new TextStyle(color: Colors.white)),padding: EdgeInsets.only(top: 2))
+            Padding(
+                child: Text("${userProfile.name}",
+                    style: new TextStyle(color: Colors.white)),
+                padding: EdgeInsets.only(top: 2)),
+            Padding(
+                child: Text("${userProfile.login}",
+                    style: new TextStyle(color: Colors.white)),
+                padding: EdgeInsets.only(top: 2)),
+            Padding(
+                child: Text(
+                  "${userProfile.bio}",
+                  style: new TextStyle(color: Colors.white),
+                  maxLines: 4,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                padding: EdgeInsets.only(top: 2)),
+            Padding(
+                child: Text("${userProfile.company}",
+                    style: new TextStyle(color: Colors.white)),
+                padding: EdgeInsets.only(top: 2))
           ],
         ));
   }

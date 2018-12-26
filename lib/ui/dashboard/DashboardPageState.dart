@@ -66,7 +66,7 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
         // Important: Remove any padding from the ListView.
         padding: EdgeInsets.zero,
         children: <Widget>[
-          new DrawerHeaderLayout(userProfile: currentUserProfile),
+          currentUserProfile == null?null: new DrawerHeaderLayout(userProfile: currentUserProfile),
           ListTile(
             title: Text('User Search'),
             onTap: () {
