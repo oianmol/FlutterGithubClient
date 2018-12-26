@@ -107,7 +107,7 @@ class UserSearchPageState extends BaseStatefulState<UserSearchPage>
   }
 
   searchUser(String string) {
-    if(this.searchString!=null && searchString.compareTo(string)!=0){
+    if (this.searchString != null && searchString.compareTo(string) != 0) {
       setState(() {
         page = 1;
         this.users = null;
@@ -153,7 +153,7 @@ class UserSearchPageState extends BaseStatefulState<UserSearchPage>
         );
       } else {
         this.actionIcon = new Icon(Icons.search);
-        if(this.subscription!=null){
+        if (this.subscription != null) {
           this.subscription.cancel();
         }
         this.users = null;
@@ -164,7 +164,7 @@ class UserSearchPageState extends BaseStatefulState<UserSearchPage>
 
   void _scrollListener() {
     print(scrollController.position.extentAfter);
-    if (scrollController.position.extentAfter == 0) {
+    if (scrollController.position.extentAfter == 0 && users != null) {
       if (subscription == null) {
         searchUser(searchString);
       }

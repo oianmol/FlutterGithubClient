@@ -21,18 +21,14 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
   StreamSubscription<Response> subStarredRepos;
   StreamSubscription subMyRepos;
 
-  RepoListProvider repoListProvider;
-
   List<ReposModel> starredRepos;
   List<ReposModel> myRepos;
 
   var toolbar = GlobalKey(debugLabel: "toolbar");
 
-
   @override
   void initState() {
     super.initState();
-    repoListProvider = new RepoListProvider();
     SharedPrefs().getToken().then((token) {
       accessToken = token;
       getMyUserProfile();
@@ -78,7 +74,9 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
               navigateTo(Routes.dashboardUserSearch);
             },
           ),
-          new Divider(color: Colors.grey,),
+          new Divider(
+            color: Colors.grey,
+          ),
           ListTile(
             title: Text('My Repo List'),
             onTap: () {
@@ -86,7 +84,9 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
               navigateTo(Routes.dashboardRepoList);
             },
           ),
-          new Divider(color: Colors.grey,),
+          new Divider(
+            color: Colors.grey,
+          ),
           ListTile(
             title: Text('Logout!'),
             onTap: () {
@@ -94,7 +94,9 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
               logoutUser();
             },
           ),
-          new Divider(color: Colors.grey,)
+          new Divider(
+            color: Colors.grey,
+          )
         ],
       ),
     );
@@ -113,8 +115,8 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
   @override
   Widget prepareWidget(BuildContext context) {
     var uiElements = <Widget>[toolbarAndroid()];
-    uiElements.add(getCardMyView(starredRepos,"Starred Repos"));
-    uiElements.add(getCardMyView(myRepos,"Repositories"));
+    uiElements.add(getCardMyView(starredRepos, "Starred Repos"));
+    uiElements.add(getCardMyView(myRepos, "Repositories"));
 
     return new Scaffold(
         key: scaffoldKey,
@@ -139,7 +141,7 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
     subscriptionMyProfile = stream.listen((profile) {
       if (profile != null) {
         this.setState(() {
-          currentUserProfile =  profile;
+          currentUserProfile = profile;
           getMyStarredRepos();
         });
       } else {
@@ -171,7 +173,7 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
       subStarredRepos.cancel();
     }
     subStarredRepos =
-        repoListProvider.getStarredRepos(currentUserProfile.login, (repos) {
+        RepoListProvider.getStarredRepos(5, currentUserProfile.login, (repos) {
       this.setState(() {
         this.starredRepos = repos;
       });
@@ -185,22 +187,20 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
     if (subMyRepos != null) {
       subMyRepos.cancel();
     }
-    subMyRepos =
-        repoListProvider.getMyRepos(accessToken, (repos) {
-          this.setState(() {
-            this.myRepos = repos;
-          });
-          hideProgress();
-        });
+    subMyRepos = RepoListProvider.getMyRepos(1, 5, accessToken, (repos) {
+      this.setState(() {
+        this.myRepos = repos;
+      });
+      hideProgress();
+    });
   }
 
-  Widget getCardMyView(var repos,String title) {
+  Widget getCardMyView(var repos, String title) {
     return new Center(
       child: Card(
         margin: EdgeInsets.all(10),
         elevation: 4,
-        child: new Column(
-            children: repoListProvider.reposList(repos, title)),
+        child: new Column(children: RepoListProvider.reposList(repos, title)),
       ),
     );
   }

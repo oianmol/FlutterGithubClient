@@ -160,17 +160,17 @@ class Github {
     return http.get(fullUrl);
   }
 
-  static Future<http.Response> getAllMyRepos(String accessToken) {
+  static Future<http.Response> getAllMyRepos(String accessToken,int max,int page) {
     String fullUrl =
-        getMyReposGithub + "?access_token=" + accessToken + affiliationParamRepoSearch;
+        getMyReposGithub + "?access_token=" + accessToken+"&page=$page&per_page=$max" + getClientIdSecret() + affiliationParamRepoSearch;
     print(fullUrl);
     return http.get(fullUrl);
   }
 
 
-  static Future<http.Response> getUserRepos(String accessToken,String userName) {
+  static Future<http.Response> getUserRepos(int page,int max,String accessToken,String userName) {
     String fullUrl =
-        getUsersReposGithub.replaceAll(":username", userName) + "?" + accessToken + affiliationParamRepoSearch+"&"+"type=all";
+        getUsersReposGithub.replaceAll(":username", userName) + "?accessToken=" + accessToken+"&page=$page&per_page=$max" + getClientIdSecret() + affiliationParamRepoSearch+"&"+"type=all";
     print(fullUrl);
     return http.get(fullUrl);
   }
@@ -189,8 +189,8 @@ class Github {
   }
 
   //flutter: https://api.github.com/users/Anmol92verma/starred
-  static Future<http.Response> getUserStarredRepos(String username) {
-    String fullUrl = getStarredReposGithub.replaceAll(USER, username);
+  static Future<http.Response> getUserStarredRepos(String username,int max,int page) {
+    String fullUrl = getStarredReposGithub.replaceAll(USER, username)+"?page=$page&per_page=$max" + getClientIdSecret();
     print(fullUrl);
     return http.get(fullUrl);
   }
