@@ -44,7 +44,6 @@ class RepoListPageState extends BaseStatefulState<RepoListPage>
     print(scrollController.position.extentAfter);
     if (scrollController.position.extentAfter == 0 && repos != null) {
       if (subscriptionMyRepos == null) {
-        page = page + 1;
         getMyRepos();
       }
     }
@@ -89,6 +88,7 @@ class RepoListPageState extends BaseStatefulState<RepoListPage>
           this.repos.addAll(repos);
         }
       });
+      page = page + 1;
       hideProgress();
       subscriptionMyRepos = null;
     });

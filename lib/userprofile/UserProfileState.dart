@@ -55,7 +55,6 @@ class UserProfileState extends BaseStatefulState<UserProfilePage> {
     print(scrollController.position.extentAfter);
     if (scrollController.position.extentAfter == 0 && repos != null) {
       if (subscriptionRepos == null) {
-        page = page + 1;
         getRepos();
       }
     }
@@ -107,6 +106,7 @@ class UserProfileState extends BaseStatefulState<UserProfilePage> {
           this.repos.addAll(repos);
         }
       });
+      page = page + 1;
       hideProgress();
       subscriptionRepos = null;
     });
