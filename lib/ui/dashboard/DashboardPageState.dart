@@ -26,9 +26,12 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
 
   var toolbar = GlobalKey(debugLabel: "toolbar");
 
+  RepoListProvider repoListProvider;
+
   @override
   void initState() {
     super.initState();
+    repoListProvider = new RepoListProvider();
     SharedPrefs().getToken().then((token) {
       accessToken = token;
       getMyUserProfile();
@@ -66,7 +69,7 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
         // Important: Remove any padding from the ListView.
         padding: EdgeInsets.zero,
         children: <Widget>[
-          new DrawerHeaderLayout(userProfile: currentUserProfile),
+          currentUserProfile == null?null: new DrawerHeaderLayout(userProfile: currentUserProfile),
           ListTile(
             title: Text('User Search'),
             onTap: () {
@@ -173,7 +176,7 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
       subStarredRepos.cancel();
     }
     subStarredRepos =
-        RepoListProvider.getStarredRepos(5, currentUserProfile.login, (repos) {
+        repoListProvider.getStarredRepos(5, currentUserProfile.login, (repos) {
       this.setState(() {
         this.starredRepos = repos;
       });
@@ -187,7 +190,7 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
     if (subMyRepos != null) {
       subMyRepos.cancel();
     }
-    subMyRepos = RepoListProvider.getMyRepos(1, 5, accessToken, (repos) {
+    subMyRepos = repoListProvider.getMyRepos(1, 5, accessToken, (repos) {
       this.setState(() {
         this.myRepos = repos;
       });
@@ -200,7 +203,7 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
       child: Card(
         margin: EdgeInsets.all(10),
         elevation: 4,
-        child: new Column(children: RepoListProvider.reposList(repos, title)),
+        child: new Column(children: repoListProvider.reposList(repos, title)),
       ),
     );
   }

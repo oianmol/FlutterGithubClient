@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 class UserProfilePage extends StatefulWidget{
 
-  UserProfile user;
+  String user;
 
   UserProfilePage(@required this.user);
 

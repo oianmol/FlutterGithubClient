@@ -20,9 +20,12 @@ class RepoListPageState extends BaseStatefulState<RepoListPage>
 
   ScrollController scrollController;
 
+  RepoListProvider repoListProvider;
+
   @override
   void initState() {
     super.initState();
+    repoListProvider = new RepoListProvider();
     scrollController = new ScrollController();
     scrollController.addListener(_scrollListener);
     SharedPrefs().getToken().then((token) {
@@ -56,7 +59,7 @@ class RepoListPageState extends BaseStatefulState<RepoListPage>
     if (repos != null) {
       uiElements.add(new Expanded(
           child:
-              RepoListProvider.getReposList(repos, false, scrollController)));
+              repoListProvider.getReposList(repos, false, scrollController)));
     }
 
     return new Scaffold(
@@ -80,7 +83,7 @@ class RepoListPageState extends BaseStatefulState<RepoListPage>
       subscriptionMyRepos.cancel();
     }
     subscriptionMyRepos =
-        RepoListProvider.getMyRepos(page, 10, accessToken, (repos) {
+        repoListProvider.getMyRepos(page, 10, accessToken, (repos) {
       this.setState(() {
         if (this.repos == null) {
           this.repos = repos;
