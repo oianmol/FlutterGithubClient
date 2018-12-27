@@ -8,6 +8,7 @@ class NotificationModel {
   Repository repository;
   String url;
   String subscriptionUrl;
+  String status = "";
 
   NotificationModel(
       {this.id,

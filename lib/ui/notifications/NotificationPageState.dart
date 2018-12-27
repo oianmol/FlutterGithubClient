@@ -1,12 +1,17 @@
+import 'dart:async';
+import 'dart:convert';
+import 'package:LoginUI/model/Issue.dart' as IssueModel;
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'NotificationsPage.dart';
 import 'package:LoginUI/utils/SharedPrefs.dart';
 import 'package:LoginUI/model/NotificationModel.dart';
+import 'package:LoginUI/model/PullRequest.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
+import 'NotificationsPage.dart';
 import '../base/BaseStatefulState.dart';
 import '../../network/Github.dart';
-import 'dart:convert';
-import 'package:intl/intl.dart';
+import '../../utils/Strings.dart';
 
 class NotificationPageState extends BaseStatefulState<NotificationsPage> {
   Widget appBarTitle = Text("Notifications");
@@ -46,16 +51,42 @@ class NotificationPageState extends BaseStatefulState<NotificationsPage> {
 
   void getUserNotifications() {
     showProgress();
+    var futures = <Future<http.Response>>[];
     var stream = Github.getUserNotifications(accessToken).asStream();
     stream.listen((response) {
       var notifications = json.decode(response.body) as List;
       var notificationsList = List<NotificationModel>();
-      notifications.forEach((json) {
-        notificationsList.add(NotificationModel.fromJson(json));
+      notifications.forEach((notification) {
+        var notificationModel = NotificationModel.fromJson(notification);
+        notificationsList.add(notificationModel);
+        futures.add(getNotificationStatus(notificationModel));
       });
-      setState(() {
-        this.notifications = notificationsList;
-        hideProgress();
+      Future.wait(futures).then((value) {
+        var i = 0;
+        value.forEach((res) {
+          var status = "";
+          print(res.body);
+          if (res.body.contains(Strings.MERGED_JSON_KEY)) {
+            var pr = PullRequest.fromJson(json.decode(res.body));
+            if (pr.state == Strings.STATUS_OPEN_JSON_VALUE) {
+              status = Strings.STATUS_PR_OPEN;
+            } else {
+              status = Strings.STATUS_PR_MERGED;
+            }
+          } else {
+            var issue = IssueModel.Issue.fromJson(json.decode(res.body));
+            if (issue.state == Strings.STATUS_OPEN_JSON_VALUE) {
+              status = Strings.STATUS_ISSUE_OPEN;
+            } else {
+              status = Strings.STATUS_ISSUE_CLOSED;
+            }
+          }
+          notificationsList[i++].status = status;
+        });
+        setState(() {
+          this.notifications = notificationsList;
+          hideProgress();
+        });
       });
     });
   }
@@ -82,10 +113,17 @@ class NotificationPageState extends BaseStatefulState<NotificationsPage> {
                       child: Text(notifications[index].subject.title.trim()),
                       margin: EdgeInsets.only(bottom: 4.0),
                     ),
+                    Container(
+                      child: Text(
+                        "Updated at ${formatDate(
+                            notifications[index].updatedAt)}",
+                        textAlign: TextAlign.start,
+                        overflow: TextOverflow.fade,
+                      ),
+                      margin: EdgeInsets.only(bottom: 4.0),
+                    ),
                     Text(
-                      "Updated at ${formatDate(notifications[index].updatedAt)}",
-                      textAlign: TextAlign.start,
-                      overflow: TextOverflow.fade,
+                      notifications[index].status,
                     )
                   ],
                 ),
@@ -122,5 +160,9 @@ class NotificationPageState extends BaseStatefulState<NotificationsPage> {
       width: 28.0,
       height: 28.0,
     );
+  }
+
+  Future<http.Response> getNotificationStatus(NotificationModel notification) {
+    return Github.getNotificationDetail(notification.subject.url, accessToken);
   }
 }

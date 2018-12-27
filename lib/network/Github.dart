@@ -162,6 +162,13 @@ class Github {
     return http.get(fullUrl);
   }
 
+  static Future<http.Response> getNotificationDetail(String url,
+      String accessToken) {
+    String fullUrl = url + "?access_token=" + accessToken;
+    print(fullUrl);
+    return http.get(fullUrl);
+  }
+
   static Future<http.Response> getAllMyRepos(String accessToken) {
     String fullUrl =
         getMyReposGithub + "?access_token=" + accessToken + affiliationParamRepoSearch;
