@@ -60,6 +60,16 @@ class GistModel {
     owner = json['owner'] != null ? new Owner.fromJson(json['owner']) : null;
     truncated = json['truncated'];
   }
+
+  getDescription() {
+    var desc = StringBuffer();
+    if(description.isNotEmpty){
+      desc.writeln(description);
+    }
+    desc.writeln("Language:"+files.getLanguages());
+    desc.writeln(files.getFileInfo());
+    return desc;
+  }
 }
 
 class Files {
@@ -73,6 +83,20 @@ class Files {
       print(value);
       gistFile.add(GistFile.fromJson(value));
     });
+  }
+
+  String getLanguages() {
+   var languages= this.gistFile.map((file){
+      return file.language;
+    });
+   return languages.join(",");
+  }
+
+  String getFileInfo() {
+    var fileInfo= this.gistFile.map((file){
+      return "File Name:"+file.filename +"\n"+"File Type:"+ file.type+"\n"+"File Size:"+file.size.toString();
+    });
+    return fileInfo.join(",");
   }
 }
 

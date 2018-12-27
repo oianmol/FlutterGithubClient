@@ -69,6 +69,8 @@ class UserGistsPageState extends BaseStatefulState<UserGistsPage>
             itemBuilder: (BuildContext context, int index) {
               return new GestureDetector(
                 child: new Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     new Container(
                       child: new Image.network(gists[index].owner.avatarUrl,
@@ -76,8 +78,8 @@ class UserGistsPageState extends BaseStatefulState<UserGistsPage>
                       padding: EdgeInsets.all(10),
                     ),
                     new Container(
-                        margin: EdgeInsets.all(10),
-                        child: new Text('${gists[index].files.gistFile.first.filename}'))
+                        padding: EdgeInsets.all(10),
+                        child: new Text('${gists[index].getDescription()}',))
                   ],
                 ),
                 onTap: () => moveToGistDetailScreen(gists[index]),
