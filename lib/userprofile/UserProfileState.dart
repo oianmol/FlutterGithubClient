@@ -5,7 +5,7 @@ import 'package:LoginUI/model/ReposModel.dart';
 import 'package:LoginUI/model/UserProfile.dart';
 import 'package:LoginUI/network/Github.dart';
 import 'package:LoginUI/ui/base/BaseStatefulState.dart';
-import 'package:LoginUI/ui/dashboard/DrawerHeaderLayout.dart';
+import 'package:LoginUI/userprofile/UserProfileHeader.dart';
 import 'package:LoginUI/userprofile/UserProfilePage.dart';
 import 'package:LoginUI/utils/RepoListProvider.dart';
 import 'package:LoginUI/utils/SharedPrefs.dart';
@@ -93,8 +93,8 @@ class UserProfileState extends BaseStatefulState<UserProfilePage> {
 
   header() {
     if (this.user != null) {
-      return new DrawerHeaderLayout(userProfile: user);
-    }else{
+      return new UserProfileHeader(user);
+    } else {
       return Text("");
     }
   }

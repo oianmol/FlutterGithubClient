@@ -7,7 +7,8 @@ import 'package:LoginUI/model/UserProfile.dart';
 import 'package:LoginUI/network/Github.dart';
 import 'package:LoginUI/ui/base/BaseStatefulState.dart';
 import 'package:LoginUI/ui/dashboard/DashboardPage.dart';
-import 'package:LoginUI/ui/dashboard/DrawerHeaderLayout.dart';
+import 'package:LoginUI/userprofile/UserProfileHeader.dart';
+import 'package:LoginUI/userprofile/UserProfileHeaderState.dart';
 import 'package:LoginUI/utils/RepoListProvider.dart';
 import 'package:LoginUI/utils/SharedPrefs.dart';
 import 'package:flutter/material.dart';
@@ -69,7 +70,7 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
         // Important: Remove any padding from the ListView.
         padding: EdgeInsets.zero,
         children: <Widget>[
-          currentUserProfile == null ? null : new DrawerHeaderLayout(userProfile: currentUserProfile),
+          currentUserProfile == null?null: new UserProfileHeader(currentUserProfile),
           ListTile(
             title: Text('User Search'),
             onTap: () {
