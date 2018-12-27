@@ -1,28 +1,15 @@
+import 'package:LoginUI/Routes.dart';
+import 'package:LoginUI/main.dart';
 import 'package:LoginUI/model/UserProfile.dart';
+import 'package:LoginUI/ui/base/BaseStatefulState.dart';
+import 'package:LoginUI/userprofile/UserProfileHeader.dart';
 import 'package:flutter/material.dart';
 
-class DrawerHeaderLayout extends StatelessWidget {
+class UserProfileHeaderState extends BaseStatefulState<UserProfileHeader> {
   final UserProfile userProfile;
 
-  DrawerHeaderLayout({userProfile: UserProfile})
+  UserProfileHeaderState({userProfile: UserProfile})
       : this.userProfile = userProfile;
-
-  @override
-  DrawerHeader build(BuildContext context) {
-    var listWidgets = <Widget>[];
-    if (userProfile != null) {
-      listWidgets.add(userImageWidget());
-      listWidgets.add(userDetailsWidget());
-    }
-    return DrawerHeader(
-      child: Row(
-        children: listWidgets,
-      ),
-      decoration: BoxDecoration(
-        color: Colors.black87,
-      ),
-    );
-  }
 
   userImageWidget() {
     return Expanded(
@@ -39,7 +26,7 @@ class DrawerHeaderLayout extends StatelessWidget {
         ));
   }
 
-  userDetailsWidget() {
+  userDetailsWidget(BuildContext context) {
     return Expanded(
         flex: 2,
         child: Column(
@@ -64,8 +51,38 @@ class DrawerHeaderLayout extends StatelessWidget {
             Padding(
                 child: Text("${userProfile.company}",
                     style: new TextStyle(color: Colors.white)),
-                padding: EdgeInsets.only(top: 2))
+                padding: EdgeInsets.only(top: 2)),
+            GestureDetector(
+              child: Padding(
+                  child: Text("See ${userProfile.name}'s Gist's",
+                      style: new TextStyle(color: Colors.white)),
+                  padding: EdgeInsets.all(4)),
+              onTap: () {
+                Application.router.navigateTo(
+                    context,
+                    Routes.userGists
+                        .replaceFirst(":loginname", userProfile.login));
+              },
+            )
           ],
         ));
+  }
+
+  @override
+  Widget prepareWidget(BuildContext context) {
+    var listWidgets = <Widget>[];
+    if (userProfile != null) {
+      listWidgets.add(userImageWidget());
+      listWidgets.add(userDetailsWidget(context));
+    }
+    return Container(
+      padding: EdgeInsets.only(top: 48),
+      child: Row(
+        children: listWidgets,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.black87,
+      ),
+    );
   }
 }
