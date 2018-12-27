@@ -59,7 +59,7 @@ class RepoDetailsPageState extends BaseStatefulState<RepoDetailsPage>
     if (repoModel != null) {
       uiElements.add(getRepoDetails());
     }
-    if (contributorsModel != null) {
+    if (contributorsModel.isNotEmpty) {
       uiElements.add(getContributorsList());
     }
     return new Scaffold(
