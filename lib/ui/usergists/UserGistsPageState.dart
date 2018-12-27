@@ -64,22 +64,46 @@ class UserGistsPageState extends BaseStatefulState<UserGistsPage>
     return new Expanded(
         child: new ListView.builder(
             controller: scrollController,
+            shrinkWrap: true,
             padding: new EdgeInsets.all(8.0),
             itemCount: gists == null ? 0 : gists.length,
             itemBuilder: (BuildContext context, int index) {
               return new GestureDetector(
-                child: new Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Column(
                   children: <Widget>[
-                    new Container(
-                      child: new Image.network(gists[index].owner.avatarUrl,
-                          width: 50.0, height: 50.0),
-                      padding: EdgeInsets.all(10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Container(
+                          padding: EdgeInsets.all(8),
+                          child: new Image.network(
+                              gists[index].owner.avatarUrl,
+                              width: 50.0,
+                              height: 50.0),
+                        ),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: <Widget>[
+                              Container(
+                                child: Text(
+                                  '${gists[index].getDescription()}',
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 3,
+                                ),
+                              ),
+                              Text(
+                                '${gists[index].getLangFileInfo()}',
+                                overflow: TextOverflow.ellipsis,
+                              )
+                            ],
+                          ),
+                        )
+                      ],
                     ),
-                    new Container(
-                        padding: EdgeInsets.all(10),
-                        child: new Text('${gists[index].getDescription()}',))
+                    Divider()
                   ],
                 ),
                 onTap: () => moveToGistDetailScreen(gists[index]),
@@ -108,7 +132,7 @@ class UserGistsPageState extends BaseStatefulState<UserGistsPage>
     if (subscription != null) {
       subscription.cancel();
     }
-    subscription = Github.getGistsForUser(loginName, 10,page)
+    subscription = Github.getGistsForUser(loginName, 10, page)
         .asStream()
         .listen((response) {
       this.setState(() {

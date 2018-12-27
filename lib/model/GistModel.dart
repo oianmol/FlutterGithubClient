@@ -62,12 +62,17 @@ class GistModel {
   }
 
   getDescription() {
-    var desc = StringBuffer();
+    var desc = StringBuffer("");
     if(description.isNotEmpty){
-      desc.writeln(description);
+      desc.write(description);
     }
+    return desc;
+  }
+
+  getLangFileInfo(){
+    var desc = StringBuffer();
     desc.writeln("Language:"+files.getLanguages());
-    desc.writeln(files.getFileInfo());
+    desc.write(files.getFileInfo());
     return desc;
   }
 }
