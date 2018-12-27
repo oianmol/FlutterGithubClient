@@ -145,13 +145,13 @@ class Github {
   }
 
   static Future<http.Response> getUsersBySearch(String accessToken, String value, int page) {
-    String fullUrl = getUserGithub + "?access_token=" + accessToken + "&q=" + value+"&page=$page&per_page=10"+"&" + getClientIdSecret();
+    String fullUrl = getUserGithub + "?q=" + value+"&page=$page&per_page=10"+"&" + getClientIdSecret();
     print(fullUrl);
     return http.get(fullUrl);
   }
 
   static Future<http.Response> getMyUserProfile(String accessToken){
-    String fullUrl = getMyUserGithub + "?access_token=" + accessToken+ "&" +getClientIdSecret();
+    String fullUrl = getMyUserGithub +  "?"+getClientIdSecret();
     print(fullUrl);
     return http.get(fullUrl);
   }
@@ -164,7 +164,7 @@ class Github {
 
   static Future<http.Response> getAllMyRepos(String accessToken,int max,int page) {
     String fullUrl =
-        getMyReposGithub + "?access_token=" + accessToken+"&page=$page&per_page=$max" +"&" + getClientIdSecret() + affiliationParamRepoSearch;
+        getMyReposGithub + "?page=$page&per_page=$max" +"&" + getClientIdSecret() + affiliationParamRepoSearch;
     print(fullUrl);
     return http.get(fullUrl);
   }
@@ -172,26 +172,26 @@ class Github {
 
   static Future<http.Response> getUserRepos(int page,int max,String accessToken,String userName) {
     String fullUrl =
-        getUsersReposGithub.replaceAll(":username", userName) + "?accessToken=" + accessToken+"&page=$page&per_page=$max" +"&" + getClientIdSecret() + affiliationParamRepoSearch+"&"+"type=all";
+        getUsersReposGithub.replaceAll(":username", userName) + "?page=$page&per_page=$max" +"&" + getClientIdSecret() + affiliationParamRepoSearch+"&"+"type=all";
     print(fullUrl);
     return http.get(fullUrl);
   }
 
 
   static Future<http.Response> getFromUrl(String reposUrl, String accessToken) {
-    String fullUrl = reposUrl + "?access_token=" + accessToken + affiliationParamRepoSearch;
+    String fullUrl = reposUrl;
     print(fullUrl);
     return http.get(fullUrl);
   }
 
   static Future<http.Response> getMyOrganizations(String accessToken) {
-    String fullUrl = getMyOrgsGithub + "?access_token=" + accessToken + affiliationParamRepoSearch;
+    String fullUrl = getMyOrgsGithub;
     print(fullUrl);
     return http.get(fullUrl);
   }
 
   static Future<http.Response> getApiForUrl(String contributorsUrl) {
-    print(contributorsUrl+"?"+ getClientIdSecret());
+    print(contributorsUrl + "?"+ getClientIdSecret());
     return http.get(contributorsUrl+"?"+ getClientIdSecret());
   }
 
