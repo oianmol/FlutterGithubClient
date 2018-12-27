@@ -13,15 +13,21 @@ class RepoListPageState extends BaseStatefulState<RepoListPage>
   Widget appBarTitle = new Text("My Repos");
 
   String accessToken;
-  RepoListProvider repoListProvider;
   StreamSubscription<Response> subscriptionMyRepos;
 
   List<ReposModel> repos;
+  int page = 1;
+
+  ScrollController scrollController;
+
+  RepoListProvider repoListProvider;
 
   @override
   void initState() {
     super.initState();
     repoListProvider = new RepoListProvider();
+    scrollController = new ScrollController();
+    scrollController.addListener(_scrollListener);
     SharedPrefs().getToken().then((token) {
       accessToken = token;
       getMyRepos();
@@ -29,11 +35,31 @@ class RepoListPageState extends BaseStatefulState<RepoListPage>
   }
 
   @override
+  void dispose() {
+    if (subscriptionMyRepos != null) {
+      subscriptionMyRepos.cancel();
+    }
+    scrollController.removeListener(_scrollListener);
+    super.dispose();
+  }
+
+  void _scrollListener() {
+    print(scrollController.position.extentAfter);
+    if (scrollController.position.extentAfter == 0 && repos != null) {
+      if (subscriptionMyRepos == null) {
+        getMyRepos();
+      }
+    }
+  }
+
+  @override
   Widget prepareWidget(BuildContext context) {
     var uiElements = <Widget>[];
     uiElements.add(toolbarAndroid());
-    if(repos!=null){
-      uiElements.add(new Expanded(child: repoListProvider.getReposList(repos,false)));
+    if (repos != null) {
+      uiElements.add(new Expanded(
+          child:
+              repoListProvider.getReposList(repos, false, scrollController)));
     }
 
     return new Scaffold(
@@ -56,11 +82,18 @@ class RepoListPageState extends BaseStatefulState<RepoListPage>
     if (subscriptionMyRepos != null) {
       subscriptionMyRepos.cancel();
     }
-    subscriptionMyRepos = repoListProvider.getMyRepos(accessToken, (repos) {
+    subscriptionMyRepos =
+        repoListProvider.getMyRepos(page, 10, accessToken, (repos) {
       this.setState(() {
-        this.repos = repos;
+        if (this.repos == null) {
+          this.repos = repos;
+        } else {
+          this.repos.addAll(repos);
+        }
       });
+      page = page + 1;
       hideProgress();
+      subscriptionMyRepos = null;
     });
   }
 }

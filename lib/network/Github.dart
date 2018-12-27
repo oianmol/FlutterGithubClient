@@ -8,6 +8,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 class Github {
   static var USER = "{user}";
+  static var REPO = "{repo}";
 
   static String githubApiBaseUrl = "https://api.github.com";
   static String authorizeURL = "https://github.com/login/oauth/authorize";
@@ -19,6 +20,7 @@ class Github {
   static String getMyReposGithub = "$githubApiBaseUrl/user/repos";
   static String getMyOrgsGithub = "$githubApiBaseUrl/user/orgs";
   static String getUsersReposGithub = "$githubApiBaseUrl/users/:username/repos";
+  static String getUserRepoGithub = "$githubApiBaseUrl/repos/$USER/$REPO";
   static String getStarredReposGithub = "$githubApiBaseUrl/users/$USER/starred";
   static String getUserNotificationsGithub = "$githubApiBaseUrl/notifications";
 
@@ -145,19 +147,19 @@ class Github {
   }
 
   static Future<http.Response> getUsersBySearch(String accessToken, String value, int page) {
-    String fullUrl = getUserGithub + "?access_token=" + accessToken + "&q=" + value+"&page=$page&per_page=10" + getClientIdSecret();
+    String fullUrl = getUserGithub + "?q=" + value+"&page=$page&per_page=10"+"&" + getClientIdSecret();
     print(fullUrl);
     return http.get(fullUrl);
   }
 
   static Future<http.Response> getMyUserProfile(String accessToken){
-    String fullUrl = getMyUserGithub + "?access_token=" + accessToken;
+    String fullUrl = getMyUserGithub +  "?"+getClientIdSecret();
     print(fullUrl);
     return http.get(fullUrl);
   }
 
   static Future<http.Response> getUserProfile(String username){
-    String fullUrl = getUserProfileGithub +"/$username";
+    String fullUrl = getUserProfileGithub +"/$username"+"?"+ "&" +getClientIdSecret();
     print(fullUrl);
     return http.get(fullUrl);
   }
@@ -169,9 +171,9 @@ class Github {
     return http.get(fullUrl);
   }
 
-  static Future<http.Response> getAllMyRepos(String accessToken) {
+  static Future<http.Response> getAllMyRepos(String accessToken,int max,int page) {
     String fullUrl =
-        getMyReposGithub + "?access_token=" + accessToken + affiliationParamRepoSearch;
+        getMyReposGithub + "?page=$page&per_page=$max" +"&" + getClientIdSecret() + affiliationParamRepoSearch;
     print(fullUrl);
     return http.get(fullUrl);
   }
@@ -183,29 +185,35 @@ class Github {
     return http.get(fullUrl);
   }
 
-  static Future<http.Response> getUserRepos(String accessToken,String userName) {
+  static Future<http.Response> getUserRepos(int page,int max,String accessToken,String userName) {
     String fullUrl =
-        getUsersReposGithub.replaceAll(":username", userName) + "?" + accessToken + affiliationParamRepoSearch+"&"+"type=all";
+        getUsersReposGithub.replaceAll(":username", userName) + "?page=$page&per_page=$max" +"&" + getClientIdSecret() + affiliationParamRepoSearch+"&"+"type=all";
     print(fullUrl);
     return http.get(fullUrl);
   }
 
 
   static Future<http.Response> getFromUrl(String reposUrl, String accessToken) {
-    String fullUrl = reposUrl + "?access_token=" + accessToken + affiliationParamRepoSearch;
+    String fullUrl = reposUrl;
     print(fullUrl);
     return http.get(fullUrl);
   }
 
   static Future<http.Response> getMyOrganizations(String accessToken) {
-    String fullUrl = getMyOrgsGithub + "?access_token=" + accessToken + affiliationParamRepoSearch;
+    String fullUrl = getMyOrgsGithub;
     print(fullUrl);
     return http.get(fullUrl);
   }
 
+  static Future<http.Response> getApiForUrl(String contributorsUrl) {
+    print(contributorsUrl + "?"+ getClientIdSecret());
+    return http.get(contributorsUrl+"?"+ getClientIdSecret());
+  }
+
+
   //flutter: https://api.github.com/users/Anmol92verma/starred
-  static Future<http.Response> getUserStarredRepos(String username) {
-    String fullUrl = getStarredReposGithub.replaceAll(USER, username);
+  static Future<http.Response> getUserStarredRepos(String username,int max,int page) {
+    String fullUrl = getStarredReposGithub.replaceAll(USER, username)+"?page=$page&per_page=$max" + "&" +getClientIdSecret();
     print(fullUrl);
     return http.get(fullUrl);
   }
@@ -235,6 +243,6 @@ class Github {
   }
 
   static String getClientIdSecret() {
-    return "&${Github.clientId}=${AppConstants.GITHUB_CLIENT_ID}&${Github.clientSecret}=${AppConstants.GITHUB_CLIENT_SECRET}";
+    return "${Github.clientId}=${AppConstants.GITHUB_CLIENT_ID}&${Github.clientSecret}=${AppConstants.GITHUB_CLIENT_SECRET}";
   }
 }

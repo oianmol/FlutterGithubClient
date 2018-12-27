@@ -6,46 +6,70 @@ import 'package:LoginUI/model/UserProfile.dart';
 import 'package:LoginUI/network/Github.dart';
 import 'package:LoginUI/ui/base/BaseStatefulState.dart';
 import 'package:LoginUI/ui/dashboard/DrawerHeaderLayout.dart';
-import 'package:LoginUI/utils/RepoListProvider.dart';
 import 'package:LoginUI/userprofile/UserProfilePage.dart';
+import 'package:LoginUI/utils/RepoListProvider.dart';
 import 'package:LoginUI/utils/SharedPrefs.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/src/widgets/framework.dart';
 import 'package:http/http.dart';
 
 class UserProfileState extends BaseStatefulState<UserProfilePage> {
-
   UserProfile user;
+  var login;
 
   String accessToken;
 
   StreamSubscription<Response> subscriptionRepos;
-  RepoListProvider repoListProvider;
 
   List<ReposModel> repos;
 
   StreamSubscription<Response> subScriptionApiUserProfile;
 
+  UserProfileState(@required this.login);
 
-  UserProfileState(@required this.user);
+  int page = 1;
 
+  ScrollController scrollController;
+
+  RepoListProvider repoListProvider;
 
   @override
   void initState() {
     super.initState();
     repoListProvider = new RepoListProvider();
+    scrollController = new ScrollController();
+    scrollController.addListener(_scrollListener);
     SharedPrefs().getToken().then((token) {
       accessToken = token;
-      print(user);
+      getUserProfile();
       getRepos();
     });
+  }
+
+  @override
+  void dispose() {
+    if (subscriptionRepos != null) {
+      subscriptionRepos.cancel();
+    }
+    scrollController.removeListener(_scrollListener);
+    super.dispose();
+  }
+
+  void _scrollListener() {
+    print(scrollController.position.extentAfter);
+    if (scrollController.position.extentAfter == 0 && repos != null) {
+      if (subscriptionRepos == null) {
+        getRepos();
+      }
+    }
   }
 
   @override
   Widget prepareWidget(BuildContext context) {
     var uiElements = <Widget>[];
     uiElements.add(header());
-    uiElements.add(new Expanded(child: repoListProvider.getReposList(repos,false)));
+    uiElements.add(new Expanded(
+        child: repoListProvider.getReposList(repos, false, scrollController)));
 
     return new Scaffold(
       key: scaffoldKey,
@@ -61,14 +85,18 @@ class UserProfileState extends BaseStatefulState<UserProfilePage> {
       centerTitle: false,
       backgroundColor: Colors.black,
       title: new Text(
-        user.login,
+        login,
         textDirection: TextDirection.ltr,
       ),
     );
   }
 
   header() {
-    return new DrawerHeaderLayout(userProfile: user);
+    if (this.user != null) {
+      return new DrawerHeaderLayout(userProfile: user);
+    }else{
+      return Text("");
+    }
   }
 
   getRepos() {
@@ -77,14 +105,19 @@ class UserProfileState extends BaseStatefulState<UserProfilePage> {
     }
     showProgress();
 
-    subscriptionRepos = repoListProvider.getUserRepos(accessToken,user.login,(repos){
+    subscriptionRepos =
+        repoListProvider.getUserRepos(page, 10, accessToken, login, (repos) {
       this.setState(() {
-        this.repos = repos;
+        if (this.repos == null) {
+          this.repos = repos;
+        } else {
+          this.repos.addAll(repos);
+        }
       });
+      page = page + 1;
       hideProgress();
-      getUserProfile();
+      subscriptionRepos = null;
     });
-
   }
 
   void getUserProfile() {
@@ -94,11 +127,11 @@ class UserProfileState extends BaseStatefulState<UserProfilePage> {
     }
     showProgress();
 
-    var getUserProfile = Github.getUserProfile(user.login).asStream();
+    var getUserProfile = Github.getUserProfile(login).asStream();
     subScriptionApiUserProfile = getUserProfile.listen((response) {
-      this.setState(() {
-        this.user = UserProfile.fromJson(json.decode(response.body));
-      });
+      print(response.body);
+      this.user = UserProfile.fromJson(json.decode(response.body));
+      this.setState(() {});
       hideProgress();
     });
   }
