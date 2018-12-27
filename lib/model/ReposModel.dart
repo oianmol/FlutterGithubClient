@@ -206,7 +206,7 @@ class ReposModel {
     size = json['size'];
     stargazersCount = json['stargazers_count'];
     watchersCount = json['watchers_count'];
-    language = json['language'];
+    language = json['language']?? "";
     hasIssues = json['has_issues'];
     hasProjects = json['has_projects'];
     hasDownloads = json['has_downloads'];
