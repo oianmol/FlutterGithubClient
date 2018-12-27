@@ -131,10 +131,14 @@ class RepoDetailsPageState extends BaseStatefulState<RepoDetailsPage>
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         padding: EdgeInsets.all(4.0)));
-    listWidgets.add(Container(
-      child: Text("Language: " + repoModel.language),
-      padding: EdgeInsets.all(4.0),
-    ));
+
+    if(repoModel.language.isNotEmpty){
+      listWidgets.add(Container(
+        child: Text("Language: " + repoModel.language),
+        padding: EdgeInsets.all(4.0),
+      ));
+    }
+
     listWidgets.add(Container(
       child: Text("Issues: " + repoModel.openIssuesCount.toString()),
       padding: EdgeInsets.all(4.0),
@@ -216,6 +220,6 @@ class RepoDetailsPageState extends BaseStatefulState<RepoDetailsPage>
             )));
       });
     }
-    return Center(child: Card(child: Column(children: list)));
+    return Center(child: Card(child: Column(children: list),margin: EdgeInsets.all(18),));
   }
 }
