@@ -206,9 +206,9 @@ class Github {
     return http.get(fullUrl);
   }
 
-  static Future<http.Response> getApiForUrl(String contributorsUrl) {
-    print(contributorsUrl + "?" + getClientIdSecret());
-    return http.get(contributorsUrl + "?" + getClientIdSecret());
+  static Future<http.Response> getApiForUrl(String contributorsUrl, String accessToken) {
+    var fullUrl = contributorsUrl + "?access_token=" + accessToken +"&"+ getClientIdSecret();
+    return http.get(fullUrl);
   }
 
   //flutter: https://api.github.com/users/Anmol92verma/starred

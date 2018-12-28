@@ -49,7 +49,7 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
   toolbarAndroid() {
     var userDashboardTitle;
     if (currentUserProfile != null) {
-      userDashboardTitle = "${currentUserProfile.name}'s Dashboard";
+      userDashboardTitle = "${currentUserProfile.getName()}'s Dashboard";
     } else {
       userDashboardTitle = "Dashboard";
     }

@@ -163,6 +163,14 @@ class UserProfile {
     }
     return data;
   }
+
+  getName() {
+    if(name.isEmpty){
+      return login;
+    }else{
+      return name;
+    }
+  }
 }
 
 class Plan {

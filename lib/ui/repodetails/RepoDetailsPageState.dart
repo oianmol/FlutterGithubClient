@@ -57,6 +57,7 @@ class RepoDetailsPageState extends BaseStatefulState<RepoDetailsPage>
     var uiElements = <Widget>[];
     uiElements.add(toolbarAndroid());
     if (repoModel != null) {
+      print(repoModel.toJson().toString());
       uiElements.add(getRepoDetails());
     }
     if (contributorsModel.isNotEmpty) {
@@ -89,9 +90,10 @@ class RepoDetailsPageState extends BaseStatefulState<RepoDetailsPage>
     showProgress();
     subscriptionRepoDetails = Github.getApiForUrl(Github.getUserRepoGithub
             .replaceFirst(Github.USER, loginName)
-            .replaceFirst(Github.REPO, repoId))
+            .replaceFirst(Github.REPO, repoId),accessToken)
         .asStream()
         .listen((repo) {
+          print(json.decode(repo.body));
       repoModel = ReposModel.fromJson(json.decode(repo.body));
       setState(() {});
       hideProgress();
@@ -105,7 +107,7 @@ class RepoDetailsPageState extends BaseStatefulState<RepoDetailsPage>
     }
     if (repoModel != null && repoModel.contributorsUrl != null) {
       showProgress();
-      subscriptionContributors = Github.getApiForUrl(repoModel.contributorsUrl)
+      subscriptionContributors = Github.getApiForUrl(repoModel.contributorsUrl,accessToken)
           .asStream()
           .listen((result) {
         var list = json.decode(result.body) as List;
