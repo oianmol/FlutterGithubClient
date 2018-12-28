@@ -58,8 +58,10 @@ class NotificationPageState extends BaseStatefulState<NotificationsPage> {
       var notificationsList = List<NotificationModel>();
       notifications.forEach((notification) {
         var notificationModel = NotificationModel.fromJson(notification);
-        notificationsList.add(notificationModel);
-        futures.add(getNotificationStatus(notificationModel));
+        if(notificationModel.subject.url!=null){
+          notificationsList.add(notificationModel);
+          futures.add(getNotificationStatus(notificationModel));
+        }
       });
       Future.wait(futures).then((value) {
         var i = 0;
