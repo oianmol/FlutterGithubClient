@@ -27,11 +27,11 @@ dependencies:
   intl: 0.15.7
 
 dev_dependencies:
-build_runner: ^0.10.2
+  build_runner: ^0.10.2
 
-flutter_test:
-    sdk: flutter
-json_serializable: ^1.2.1
+  flutter_test:
+      sdk: flutter
+  json_serializable: ^1.2.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://www.dartlang.org/tools/pub/pubspec
