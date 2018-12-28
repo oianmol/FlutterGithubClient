@@ -10,20 +10,20 @@ class Github {
   static var USER = "{user}";
   static var REPO = "{repo}";
 
+  static String githubApiBaseUrl = "https://api.github.com";
   static String authorizeURL = "https://github.com/login/oauth/authorize";
   static String accessTokenURL = "https://github.com/login/oauth/access_token";
-  static String authorizeBasicUrl = "https://api.github.com/authorizations";
-  static String getUserGithub = "https://api.github.com/search/users";
-  static String getMyUserGithub = "https://api.github.com/user";
-  static String getUserProfileGithub = "https://api.github.com/users";
-  static String getMyReposGithub = "https://api.github.com/user/repos";
-  static String getMyOrgsGithub = "https://api.github.com/user/orgs";
-  static String getGistsGithub = "https://api.github.com/users/$USER/gists";
-  static String getUserRepoGithub = "https://api.github.com/repos/$USER/$REPO";
-  static String getUsersReposGithub =
-      "https://api.github.com/users/:username/repos";
-  static String getStarredReposGithub =
-      "https://api.github.com/users/$USER/starred";
+  static String authorizeBasicUrl = "$githubApiBaseUrl/authorizations";
+  static String getUserGithub = "$githubApiBaseUrl/search/users";
+  static String getMyUserGithub = "$githubApiBaseUrl/user";
+  static String getUserProfileGithub = "$githubApiBaseUrl/users";
+  static String getMyReposGithub = "$githubApiBaseUrl/user/repos";
+  static String getMyOrgsGithub = "$githubApiBaseUrl/user/orgs";
+  static String getUsersReposGithub = "$githubApiBaseUrl/users/:username/repos";
+  static String getUserRepoGithub = "$githubApiBaseUrl/repos/$USER/$REPO";
+  static String getStarredReposGithub = "$githubApiBaseUrl/users/$USER/starred";
+  static String getUserNotificationsGithub = "$githubApiBaseUrl/notifications";
+  static String getGistsGithub = "$githubApiBaseUrl/users/$USER/gists";
 
   static String clientId =
       "client_id"; //Required. The client ID you received from GitHub when you registered.
@@ -165,6 +165,13 @@ class Github {
     return http.get(fullUrl);
   }
 
+  static Future<http.Response> getNotificationDetail(String url,
+      String accessToken) {
+    String fullUrl = url + "?access_token=" + accessToken;
+    print(fullUrl);
+    return http.get(fullUrl);
+  }
+
   static Future<http.Response> getAllMyRepos(String accessToken,int max,int page) {
     String fullUrl =
         getMyReposGithub + "?access_token=" + accessToken+"&page=$page&per_page=$max" +"&" + getClientIdSecret() + affiliationParamRepoSearch;
@@ -172,6 +179,12 @@ class Github {
     return http.get(fullUrl);
   }
 
+  static Future<http.Response> getUserNotifications(String accessToken) {
+    String fullUrl = getUserNotificationsGithub + "?access_token=" +
+        accessToken;
+    print(fullUrl);
+    return http.get(fullUrl);
+  }
 
   static Future<http.Response> getUserRepos(int page,int max,String accessToken,String userName) {
     String fullUrl =

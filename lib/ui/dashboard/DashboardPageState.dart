@@ -78,9 +78,15 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
               navigateTo(Routes.dashboardUserSearch);
             },
           ),
-          new Divider(
-            color: Colors.grey,
+          Divider(color: Colors.grey,),
+          ListTile(
+            title: Text("Notifications"),
+            onTap: () {
+              Navigator.pop(context);
+              navigateTo(Routes.notificationsList);
+            },
           ),
+          new Divider(color: Colors.grey,),
           ListTile(
             title: Text('My Repo List'),
             onTap: () {
@@ -88,9 +94,7 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
               navigateTo(Routes.dashboardRepoList);
             },
           ),
-          new Divider(
-            color: Colors.grey,
-          ),
+          new Divider(color: Colors.grey,),
           ListTile(
             title: Text('Logout!'),
             onTap: () {
@@ -98,9 +102,7 @@ class DashboardPageState extends BaseStatefulState<DashboardPage> {
               logoutUser();
             },
           ),
-          new Divider(
-            color: Colors.grey,
-          )
+          new Divider(color: Colors.grey,)
         ],
       ),
     );

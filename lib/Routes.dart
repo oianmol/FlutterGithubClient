@@ -4,6 +4,7 @@ import 'package:LoginUI/ui/repodetails/RepoDetailsPage.dart';
 import 'package:LoginUI/ui/repolist/RepoListPage.dart';
 import 'package:LoginUI/ui/searchusers/UserSearchPage.dart';
 import 'package:LoginUI/ui/usergists/UserGistsPage.dart';
+import 'ui/notifications/NotificationsPage.dart';
 import 'package:fluro/fluro.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -15,6 +16,7 @@ class Routes {
   static String dashboardUserSearch = "/usersearch";
   static String repoDetails = "/repolist/:loginname/:repo";
   static String userGists = "/users/:loginname/gists";
+  static String notificationsList = "/notifications";
 
   static void configureRoutes(Router router) {
     router.notFoundHandler = new Handler(
@@ -28,6 +30,7 @@ class Routes {
     router.define(dashboardUserSearch, handler: dashboardUserSearchHandler);
     router.define(repoDetails, handler: repoDetailsHandler);
     router.define(userGists, handler: userGistsHandler);
+    router.define(notificationsList, handler: notificationsHandler);
   }
 }
 
@@ -60,3 +63,9 @@ var userGistsHandler = new Handler(
     handlerFunc: (BuildContext context, Map<String, List<String>> params) {
       return new UserGistsPage(params["loginname"][0]);
     });
+
+var notificationsHandler = Handler(
+    handlerFunc: (BuildContext context, Map<String, List<String>> params) {
+      return new NotificationsPage();
+    }
+);
