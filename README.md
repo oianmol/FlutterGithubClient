@@ -1,5 +1,5 @@
 # FLutter Github Client
-![Travis Build Status](https://travis-ci.org/nikhilbansal97/FlutterGithubClient.svg?branch=githubclient)
+![Travis Build Status](https://travis-ci.com/Anmol92verma/FlutterGithubClient.svg?branch=master)
 
 A new Flutter application for github client.
 
