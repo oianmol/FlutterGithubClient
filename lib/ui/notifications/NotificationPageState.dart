@@ -1,22 +1,28 @@
 import 'dart:async';
 import 'dart:convert';
+
 import 'package:LoginUI/model/Issue.dart' as IssueModel;
-import 'package:http/http.dart' as http;
-import 'package:flutter/material.dart';
-import 'package:LoginUI/utils/SharedPrefs.dart';
 import 'package:LoginUI/model/NotificationModel.dart';
 import 'package:LoginUI/model/PullRequest.dart';
+import 'package:LoginUI/utils/SharedPrefs.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-import 'NotificationsPage.dart';
-import '../base/BaseStatefulState.dart';
+
 import '../../network/Github.dart';
 import '../../utils/Strings.dart';
+import '../base/BaseStatefulState.dart';
+import 'NotificationsPage.dart';
 
 class NotificationPageState extends BaseStatefulState<NotificationsPage> {
   Widget appBarTitle = Text("Notifications");
   String accessToken;
   List<NotificationModel> notifications;
+
+  StreamSubscription<http.Response> subscriptionNotifications;
+
+  StreamSubscription<List<http.Response>> subscriptionEachNotificaion;
 
   @override
   void initState() {
@@ -25,6 +31,12 @@ class NotificationPageState extends BaseStatefulState<NotificationsPage> {
       accessToken = token;
       getUserNotifications();
     });
+  }
+
+  @override
+  void dispose() {
+    clearDisposables();
+    super.dispose();
   }
 
   @override
@@ -53,17 +65,26 @@ class NotificationPageState extends BaseStatefulState<NotificationsPage> {
     showProgress();
     var futures = <Future<http.Response>>[];
     var stream = Github.getUserNotifications(accessToken).asStream();
-    stream.listen((response) {
+
+    clearDisposables();
+
+    subscriptionNotifications = stream.listen((response) {
       var notifications = json.decode(response.body) as List;
       var notificationsList = List<NotificationModel>();
       notifications.forEach((notification) {
         var notificationModel = NotificationModel.fromJson(notification);
-        if(notificationModel.subject.url!=null){
+        if (notificationModel.subject.url != null) {
           notificationsList.add(notificationModel);
           futures.add(getNotificationStatus(notificationModel));
         }
       });
-      Future.wait(futures).then((value) {
+
+      setState(() {
+        this.notifications = notificationsList;
+        hideProgress();
+      });
+
+      subscriptionEachNotificaion = Future.wait(futures).asStream().listen((value) {
         var i = 0;
         value.forEach((res) {
           var status = "";
@@ -84,10 +105,7 @@ class NotificationPageState extends BaseStatefulState<NotificationsPage> {
             }
           }
           notificationsList[i++].status = status;
-        });
-        setState(() {
-          this.notifications = notificationsList;
-          hideProgress();
+          setState(() {});
         });
       });
     });
@@ -117,8 +135,7 @@ class NotificationPageState extends BaseStatefulState<NotificationsPage> {
                     ),
                     Container(
                       child: Text(
-                        "Updated at ${formatDate(
-                            notifications[index].updatedAt)}",
+                        "Updated at ${formatDate(notifications[index].updatedAt)}",
                         textAlign: TextAlign.start,
                         overflow: TextOverflow.fade,
                       ),
@@ -167,4 +184,16 @@ class NotificationPageState extends BaseStatefulState<NotificationsPage> {
   Future<http.Response> getNotificationStatus(NotificationModel notification) {
     return Github.getNotificationDetail(notification.subject.url, accessToken);
   }
+
+  void clearDisposables() {
+    if (subscriptionNotifications != null) {
+      subscriptionNotifications.cancel();
+    }
+
+    if(subscriptionEachNotificaion!=null){
+      subscriptionEachNotificaion.cancel();
+    }
+  }
 }
+
+
